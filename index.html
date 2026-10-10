@@ -1,0 +1,2893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data 360 Workshop — Coral Cloud Resorts × Salesforce</title>
+<style>
+/* ===== TOKENS ===== */
+:root {
+  --sf-navy:    #001E5B;
+  --sf-blue:    #066AFE;
+  --sf-cloud:   #CFE9FE;
+  --sf-white:   #FFFFFF;
+  --sf-teal:    #0B827C;
+  --sf-violet:  #D17DFE;
+  --sf-yellow:  #FFD422;
+  --sf-pink:    #FE5C7A;
+  --sf-green:   #3BA755;
+  --sf-orange:  #FE9339;
+  --grad-dark:  linear-gradient(160deg, #001E5B 0%, #003080 60%, #0047B0 100%);
+  --grad-mid:   linear-gradient(160deg, #066AFE 0%, #003CC8 100%);
+  --shadow-card: 0 4px 12px rgba(6,106,254,0.12);
+  --radius: 16px;
+  --font-head: "Avant Garde Demi","Century Gothic",Futura,sans-serif;
+  --font-body: "Salesforce Sans","Helvetica Neue",Arial,sans-serif;
+}
+
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity;}
+body{font-family:var(--font-body);font-size:16px;color:var(--sf-navy);background:var(--sf-white);overflow-x:hidden;}
+img{max-width:100%;height:auto;}
+a{color:var(--sf-blue);text-decoration:none;}
+a:focus-visible,button:focus-visible{outline:3px solid var(--sf-blue);outline-offset:3px;}
+
+/* ===== SKIP LINK ===== */
+.skip-link{position:absolute;top:-50px;left:16px;background:var(--sf-blue);color:#fff;padding:8px 16px;border-radius:8px;z-index:9999;font-weight:700;transition:top .2s;}
+.skip-link:focus{top:16px;}
+
+/* ===== SCROLL PROGRESS ===== */
+#progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:var(--sf-blue);z-index:10000;transition:width .1s linear;}
+
+/* ===== NAV ===== */
+nav{position:fixed;top:3px;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:12px 40px;background:rgba(0,30,91,0.72);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(6,106,254,0.25);}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-brand-text{color:#fff;font-family:var(--font-head);font-size:15px;letter-spacing:.04em;}
+.nav-links{display:flex;gap:6px;flex-wrap:wrap;}
+.nav-links a{color:rgba(255,255,255,0.75);font-size:13px;padding:5px 10px;border-radius:20px;transition:background .2s,color .2s;}
+.nav-links a:hover,.nav-links a:focus-visible{background:rgba(6,106,254,0.35);color:#fff;}
+.nav-links a.active{background:rgba(6,106,254,0.55);color:#fff;font-weight:600;}
+
+/* ===== SECTIONS ===== */
+section{scroll-snap-align:start;padding:100px 40px 80px;}
+.section-white{background:var(--sf-white);}
+.section-cloud{background:var(--sf-cloud);}
+.section-dark{background:var(--sf-navy);color:#fff;}
+.section-blue{background:var(--sf-blue);color:#fff;}
+
+/* ===== HERO ===== */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--grad-dark);color:#fff;position:relative;overflow:hidden;padding-top:80px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(6,106,254,0.3);border:1px solid rgba(6,106,254,0.5);border-radius:24px;padding:6px 18px;font-size:13px;margin-bottom:28px;letter-spacing:.06em;text-transform:uppercase;}
+.hero-logo-wrap{margin-bottom:32px;}
+.hero-logo-wrap img{height:72px;}
+.hero-headline{font-family:var(--font-head);font-size:clamp(42px,7vw,88px);line-height:1.06;margin-bottom:24px;letter-spacing:-.01em;}
+.hero-headline span{color:var(--sf-yellow);}
+.hero-sub{font-size:clamp(16px,2vw,22px);max-width:680px;margin:0 auto 48px;opacity:.88;line-height:1.6;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:56px;}
+.pill{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.28);border-radius:32px;padding:7px 18px;font-size:14px;color:#fff;}
+.hero-scroll{display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.55;font-size:13px;}
+.hero-scroll svg{animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+/* ===== SPARKLES (edges only) ===== */
+.sparkle{position:absolute;pointer-events:none;opacity:.28;}
+.sparkle svg{width:24px;height:24px;}
+
+/* ===== SECTION HEADER ===== */
+.section-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--sf-blue);margin-bottom:10px;}
+.section-label.light{color:rgba(207,233,254,0.8);}
+.section-title{font-family:var(--font-head);font-size:clamp(28px,4vw,44px);line-height:1.15;margin-bottom:20px;}
+.section-lead{font-size:18px;line-height:1.65;max-width:760px;margin-bottom:48px;opacity:.85;}
+
+/* ===== SETUP ===== */
+.setup-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+@media(max-width:1024px){.setup-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.setup-grid{grid-template-columns:1fr;}}
+.setup-card{background:#fff;border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow-card);border-top:4px solid var(--sf-blue);display:flex;flex-direction:column;}
+.setup-card .step-num{font-family:var(--font-head);font-size:36px;color:var(--sf-blue);margin-bottom:8px;}
+.setup-card h3{font-family:var(--font-head);font-size:17px;color:var(--sf-navy);margin-bottom:10px;}
+.setup-card p{font-size:15px;color:#444;line-height:1.55;flex:1;}
+.setup-link{display:inline-flex;align-items:center;gap:6px;margin-top:20px;font-size:14px;font-weight:700;color:var(--sf-blue);border:1.5px solid var(--sf-blue);border-radius:24px;padding:7px 16px;transition:background .2s,color .2s;align-self:flex-start;}
+.setup-link:hover,.setup-link:focus-visible{background:var(--sf-blue);color:#fff;}
+
+/* ===== EXERCISE GUIDE (step-by-step blocks) ===== */
+.guide-blocks{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+@media(max-width:960px){.guide-blocks{grid-template-columns:1fr;gap:20px;}}
+.guide-block{border-radius:var(--radius);padding:32px 28px;box-shadow:0 4px 20px rgba(0,0,0,0.22);border-top:4px solid var(--sf-blue);background:rgba(255,255,255,0.07);}
+.guide-block-header{display:flex;align-items:center;gap:14px;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.12);}
+.guide-step-badge{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:42px;border-radius:50%;background:var(--sf-blue);color:#fff;font-family:var(--font-head);font-size:18px;flex-shrink:0;}
+.guide-block h3{font-family:var(--font-head);font-size:16px;color:#fff;line-height:1.3;}
+.guide-block-icon{font-size:28px;margin-bottom:18px;}
+.guide-actions{list-style:none;display:flex;flex-direction:column;gap:14px;}
+.guide-action{display:flex;gap:12px;align-items:flex-start;}
+.action-num{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;border-radius:50%;background:var(--sf-blue);color:#fff;font-family:var(--font-head);font-size:11px;flex-shrink:0;margin-top:2px;}
+.guide-action-text{font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;}
+.guide-action-text strong{color:#fff;}
+.action-note{display:inline-block;font-size:12px;color:rgba(207,233,254,0.9);background:rgba(6,106,254,0.28);border-radius:6px;padding:3px 10px;margin-top:6px;}
+.color-key{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.color-key-item{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.8);}
+.ck-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* ===== EXERCISE CONTEXT INTRO + 3-BLOCK GRID ===== */
+.ex-context-intro{font-size:17px;line-height:1.72;color:var(--sf-navy);max-width:820px;margin-bottom:44px;padding:26px 30px;background:var(--sf-cloud);border-radius:var(--radius);border-left:5px solid var(--sf-blue);}
+.ex-context-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+@media(max-width:900px){.ex-context-grid{grid-template-columns:1fr;gap:18px;}}
+.ex-context-card{border-radius:var(--radius);padding:30px 26px;box-shadow:var(--shadow-card);background:#fff;display:flex;flex-direction:column;}
+.ex-context-card.card-problem{border-top:4px solid var(--sf-pink);}
+.ex-context-card.card-build{border-top:4px solid var(--sf-blue);}
+.ex-context-card.card-learn{border-top:4px solid var(--sf-teal);}
+.ctx-icon{font-size:28px;margin-bottom:14px;}
+.ctx-card-label{display:inline-block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:14px;}
+.ctx-label-problem{background:rgba(254,92,122,0.1);color:var(--sf-pink);}
+.ctx-label-build{background:rgba(6,106,254,0.1);color:var(--sf-blue);}
+.ctx-label-learn{background:rgba(11,130,124,0.1);color:var(--sf-teal);}
+.ex-context-card h3{font-family:var(--font-head);font-size:17px;color:var(--sf-navy);margin-bottom:12px;}
+.ex-context-card p{font-size:15px;color:#444;line-height:1.6;flex:1;}
+.learn-list{list-style:none;display:flex;flex-direction:column;gap:10px;flex:1;}
+.learn-list li{display:flex;align-items:flex-start;gap:10px;font-size:15px;color:#333;line-height:1.55;}
+.learn-check,.check-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--sf-teal);color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.ex-context-card.card-solution{border-top:4px solid var(--sf-blue);}
+.ctx-label-solution{background:rgba(6,106,254,0.1);color:var(--sf-blue);}
+.learning-list{list-style:none;display:flex;flex-direction:column;gap:10px;flex:1;}
+.learning-list li{display:flex;align-items:flex-start;gap:10px;font-size:15px;color:#333;line-height:1.55;}
+
+/* ===== MODAL SYSTEM ===== */
+.modal-overlay{position:fixed;inset:0;z-index:3000;background:rgba(0,10,35,0.82);display:flex;align-items:center;justify-content:center;padding:24px 20px;opacity:0;visibility:hidden;transition:opacity .28s ease,visibility .28s ease;}
+.modal-overlay.is-open{opacity:1;visibility:visible;}
+.modal-dialog{background:#fff;border-radius:20px;width:80%;max-width:1200px;max-height:90vh;display:flex;flex-direction:column;transform:translateY(32px);transition:transform .3s ease;position:relative;box-shadow:0 24px 60px rgba(0,0,0,0.35);}
+.modal-overlay.is-open .modal-dialog{transform:translateY(0);}
+
+/* Sticky header — never scrolls away */
+.modal-header{padding:24px 32px 18px;border-bottom:1px solid rgba(6,106,254,0.12);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-shrink:0;border-radius:20px 20px 0 0;background:#fff;}
+.modal-header-content{flex:1;}
+.modal-subtitle{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sf-blue);margin-bottom:5px;}
+.modal-title{font-family:var(--font-head);font-size:22px;color:var(--sf-navy);line-height:1.25;}
+.modal-close{width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(0,30,91,0.18);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sf-navy);font-size:20px;line-height:1;flex-shrink:0;transition:background .2s,color .2s;}
+.modal-close:hover,.modal-close:focus-visible{background:var(--sf-navy);color:#fff;}
+.modal-close:focus-visible{outline:3px solid var(--sf-blue);outline-offset:3px;}
+
+/* Scrollable body */
+.modal-body{padding:28px 32px 40px;overflow-y:auto;flex:1;}
+
+/* Step row: number badge + 2-col content (text | image) on desktop */
+.modal-step{display:flex;gap:18px;margin-bottom:28px;align-items:flex-start;}
+.modal-step:last-child{margin-bottom:0;}
+.modal-step-num{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;border-radius:50%;background:var(--sf-blue);color:#fff;font-family:var(--font-head);font-size:13px;flex-shrink:0;margin-top:3px;}
+.modal-step-content{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+.modal-step-content p{font-size:15px;color:#333;line-height:1.7;margin-bottom:0;}
+
+/* When a step has no image, let the text span full width */
+.modal-step-content.no-img{grid-template-columns:1fr;}
+
+/* Images */
+.modal-img-slot{display:block;width:100%;height:auto;max-height:420px;border-radius:10px;box-shadow:0 4px 18px rgba(6,106,254,0.15);object-fit:contain;}
+.modal-img-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:100%;min-height:160px;max-height:420px;border:1.5px dashed rgba(6,106,254,0.35);border-radius:10px;background:rgba(207,233,254,0.28);color:var(--sf-blue);font-size:12px;text-align:center;padding:20px;}
+.modal-img-placeholder svg{opacity:.45;}
+
+/* Utility elements */
+.modal-note{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--sf-teal);background:rgba(11,130,124,0.1);border-radius:8px;padding:5px 10px;margin-top:10px;}
+.modal-color-key{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.modal-ck-item{display:flex;align-items:center;gap:8px;font-size:14px;color:#333;}
+.modal-ck-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.modal-step-text{display:flex;flex-direction:column;gap:0;}
+.modal-img-pair{display:flex;flex-direction:column;gap:10px;}
+
+/* Responsive: collapse to single column on tablet/mobile */
+@media(max-width:900px){
+  .modal-dialog{width:94%;}
+  .modal-step-content{grid-template-columns:1fr;}
+  .modal-body{padding:22px 20px 32px;}
+  .modal-header{padding:20px 20px 16px;}
+}
+
+/* ===== GUIDE TRIGGER CARDS ===== */
+.guide-trigger-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+@media(max-width:900px){.guide-trigger-grid{grid-template-columns:1fr;gap:18px;}}
+.guide-trigger-card{border-radius:var(--radius);padding:30px 26px;background:rgba(255,255,255,0.08);border-top:4px solid var(--sf-blue);display:flex;flex-direction:column;}
+.guide-trigger-card .guide-block-header{border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:16px;margin-bottom:16px;}
+.guide-trigger-summary{font-size:14px;color:rgba(255,255,255,0.75);line-height:1.65;flex:1;margin-bottom:22px;}
+.guide-open-btn{display:inline-flex;align-items:center;gap:8px;background:var(--sf-blue);color:#fff;font-family:var(--font-head);font-size:14px;padding:10px 20px;border-radius:30px;border:none;cursor:pointer;transition:background .2s,transform .15s;align-self:flex-start;}
+.guide-open-btn:hover{background:#0558d8;transform:scale(1.03);}
+.guide-open-btn:focus-visible{outline:3px solid var(--sf-yellow);outline-offset:3px;}
+
+/* ===== EXERCISE LAYOUT ===== */
+.ex-wrap{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;}
+@media(max-width:820px){.ex-wrap{grid-template-columns:1fr;}}
+.pain-card,.solution-card{border-radius:var(--radius);padding:32px 28px;box-shadow:var(--shadow-card);}
+.pain-card{background:#fff;border-left:5px solid var(--sf-pink);}
+.solution-card{background:var(--sf-navy);color:#fff;border-left:5px solid var(--sf-green);}
+.card-icon{font-size:32px;margin-bottom:14px;}
+.pain-card h3{font-family:var(--font-head);font-size:19px;color:var(--sf-navy);margin-bottom:12px;}
+.solution-card h3{font-family:var(--font-head);font-size:19px;color:#fff;margin-bottom:12px;}
+.pain-card p,.solution-card p{font-size:15px;line-height:1.6;}
+.pain-card p{color:#333;}
+.solution-card p{color:rgba(255,255,255,0.88);}
+.card-label{display:inline-block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:14px;}
+.label-pain{background:rgba(254,92,122,0.12);color:var(--sf-pink);}
+.label-solution{background:rgba(59,167,85,0.25);color:#6eeba0;}
+
+/* ===== EXERCISE NUMBER BADGE ===== */
+.ex-num-badge{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;font-family:var(--font-head);font-size:20px;margin-bottom:20px;}
+.badge-blue{background:var(--sf-blue);color:#fff;}
+.section-dark .ex-num-badge,.section-blue .ex-num-badge{background:rgba(255,255,255,0.18);color:#fff;}
+
+/* ===== FEATURE CHIPS ===== */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+.chip{border-radius:24px;padding:5px 14px;font-size:13px;font-weight:600;border:1px solid;}
+.chip-teal{background:rgba(11,130,124,0.15);border-color:var(--sf-teal);color:var(--sf-teal);}
+.chip-violet{background:rgba(209,125,254,0.15);border-color:var(--sf-violet);color:var(--sf-violet);}
+.chip-orange{background:rgba(254,147,57,0.15);border-color:var(--sf-orange);color:var(--sf-orange);}
+.chip-yellow{background:rgba(255,212,34,0.15);border-color:#c89e00;color:#7a5f00;}
+.chip-green{background:rgba(59,167,85,0.15);border-color:var(--sf-green);color:var(--sf-green);}
+.section-dark .chip-teal,.section-dark .chip-violet,.section-dark .chip-orange,.section-dark .chip-green{filter:brightness(1.6);}
+
+/* ===== CONCLUSION ===== */
+.journey-steps{display:flex;flex-direction:column;gap:0;}
+.journey-step{display:flex;align-items:flex-start;gap:20px;padding:20px 0;border-bottom:1px solid rgba(6,106,254,0.12);}
+.journey-step:last-child{border-bottom:none;}
+.step-dot{width:14px;height:14px;border-radius:50%;background:var(--sf-blue);flex-shrink:0;margin-top:5px;}
+.journey-step h4{font-family:var(--font-head);font-size:17px;color:var(--sf-navy);margin-bottom:4px;}
+.journey-step p{font-size:15px;color:#444;line-height:1.55;}
+
+/* ===== FINAL CTA ===== */
+#cta{background:var(--grad-dark);color:#fff;text-align:center;padding:120px 40px;}
+#cta h2{font-family:var(--font-head);font-size:clamp(32px,5vw,64px);margin-bottom:20px;line-height:1.1;}
+#cta p{font-size:20px;opacity:.85;margin-bottom:52px;max-width:580px;margin-left:auto;margin-right:auto;}
+.cta-btn{display:inline-block;background:var(--sf-blue);color:#fff;font-family:var(--font-head);font-size:18px;padding:18px 48px;border-radius:50px;border:2px solid rgba(255,255,255,0.3);transition:background .25s,transform .2s;cursor:pointer;}
+.cta-btn:hover{background:#0558d8;transform:scale(1.04);}
+.cta-btn:focus-visible{outline:3px solid var(--sf-yellow);outline-offset:3px;}
+
+/* ===== STORYTELLING GRID ===== */
+.story-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+@media(max-width:1100px){.story-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:580px){.story-grid{grid-template-columns:1fr;}}
+.story-card{background:#fff;border-radius:var(--radius);padding:30px 26px;box-shadow:var(--shadow-card);border-top:4px solid var(--sf-blue);display:flex;flex-direction:column;}
+.story-card-icon{font-size:32px;margin-bottom:16px;}
+.story-card h3{font-family:var(--font-head);font-size:17px;color:var(--sf-navy);margin-bottom:12px;line-height:1.3;}
+.story-card p{font-size:15px;color:#444;line-height:1.65;flex:1;}
+.story-card.accent-teal{border-top-color:var(--sf-teal);}
+.story-card.accent-violet{border-top-color:var(--sf-violet);}
+.story-card.accent-green{border-top-color:var(--sf-green);}
+
+/* ===== EXERCISE INDEX ===== */
+.ex-index-section{background:var(--sf-navy);padding:80px 40px;}
+@media(max-width:600px){.ex-index-section{padding:60px 20px;}}
+.ex-index-title{font-family:var(--font-head);font-size:clamp(20px,3vw,30px);color:#fff;margin-bottom:36px;line-height:1.3;max-width:680px;}
+.ex-index-title em{font-style:normal;color:var(--sf-yellow);}
+.ex-index-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+.ex-index-card{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.07);border:1px solid rgba(6,106,254,0.3);border-radius:12px;padding:16px 20px;color:#fff;text-decoration:none;transition:background .2s,border-color .2s,transform .15s;}
+.ex-index-card:hover,.ex-index-card:focus-visible{background:rgba(6,106,254,0.25);border-color:var(--sf-blue);transform:translateY(-2px);}
+.ex-index-card:focus-visible{outline:3px solid var(--sf-yellow);outline-offset:3px;}
+.ex-num{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;border-radius:50%;background:var(--sf-blue);font-family:var(--font-head);font-size:14px;color:#fff;flex-shrink:0;}
+.ex-num.ex-setup{background:var(--sf-teal);}
+.ex-card-text{display:flex;flex-direction:column;gap:2px;}
+.ex-card-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(207,233,254,0.7);font-weight:700;}
+.ex-card-name{font-family:var(--font-head);font-size:14px;color:#fff;line-height:1.3;}
+
+/* ===== FOOTER ===== */
+footer{background:var(--sf-navy);color:rgba(255,255,255,0.55);text-align:center;padding:28px 40px;font-size:13px;}
+footer strong{color:rgba(255,255,255,0.8);}
+
+/* ===== ANIMATIONS ===== */
+.fade-up{opacity:0;transform:translateY(40px);transition:opacity .65s ease,transform .65s ease;}
+.fade-left{opacity:0;transform:translateX(-40px);transition:opacity .65s ease,transform .65s ease;}
+.fade-right{opacity:0;transform:translateX(40px);transition:opacity .65s ease,transform .65s ease;}
+.fade-up.is-visible,.fade-left.is-visible,.fade-right.is-visible{opacity:1;transform:none;}
+/* Hero animates immediately on load */
+#hero .fade-up{transition-duration:.9s;}
+#hero .fade-up:nth-child(2){transition-delay:.1s;}
+#hero .fade-up:nth-child(3){transition-delay:.25s;}
+#hero .fade-up:nth-child(4){transition-delay:.4s;}
+#hero .fade-up:nth-child(5){transition-delay:.55s;}
+#hero .fade-up:nth-child(6){transition-delay:.7s;}
+
+/* ===== ZOOM / LUPA ===== */
+.zoom-container{position:relative;display:block;cursor:crosshair;line-height:0;border-radius:10px;overflow:hidden;}
+.zoom-container img{display:block;width:100%;height:auto;max-height:420px;object-fit:contain;border-radius:10px;box-shadow:0 4px 18px rgba(6,106,254,0.15);}
+.lupa{position:absolute;width:160px;height:160px;border-radius:50%;border:2.5px solid rgba(6,106,254,0.7);box-shadow:0 6px 24px rgba(0,0,0,0.35),0 0 0 1px rgba(255,255,255,0.5) inset;pointer-events:none;display:none;background-repeat:no-repeat;z-index:10;overflow:hidden;}
+/* Mobile lightbox */
+.img-lightbox-overlay{position:fixed;inset:0;z-index:5000;background:rgba(0,10,35,0.92);display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;}
+.img-lightbox-overlay img{max-width:100%;max-height:90vh;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.6);object-fit:contain;}
+.img-lightbox-close{position:fixed;top:20px;right:24px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* Touch devices: swap crosshair for zoom cursor */
+@media(hover:none){.zoom-container{cursor:zoom-in;}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+  nav{padding:10px 16px;}
+  .nav-links{display:none;}
+  section{padding:80px 20px 60px;}
+  #cta{padding:80px 20px;}
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Saltar al contenido principal</a>
+<div id="progress-bar" role="progressbar" aria-label="Progreso de lectura"></div>
+
+<!-- NAV -->
+<nav aria-label="Navegación principal">
+  <div class="nav-brand">
+    <!-- Salesforce cloud icon inline SVG -->
+    <svg width="28" height="20" viewBox="0 0 28 20" fill="none" aria-hidden="true">
+      <path d="M11.6 4.2C12.5 1.7 14.8 0 17.5 0c3.4 0 6.1 2.6 6.5 6C25.7 6.4 28 8.6 28 11.3c0 3-2.4 5.4-5.4 5.4H6.2C3.3 16.7 1 14.4 1 11.5c0-2.5 1.7-4.6 4-5.1 0-.1 0-.3 0-.4 0-3 2.4-5.4 5.4-5.4 1 0 2 .3 2.8.7C12.7 1.8 11.6 4.2 11.6 4.2z" fill="#066AFE"/>
+    </svg>
+    <span class="nav-brand-text">Data 360 · Coral Cloud Workshop</span>
+  </div>
+  <nav class="nav-links" aria-label="Secciones">
+    <a href="#hero">Inicio</a>
+    <a href="#setup">Setup</a>
+    <a href="#ex1">E1</a>
+    <a href="#ex2">E2</a>
+    <a href="#ex3">E3</a>
+    <a href="#ex4">E4</a>
+    <a href="#ex5">E5</a>
+    <a href="#ex6">E6</a>
+    <a href="#conclusion">Conclusión</a>
+    <a href="#cta">Recursos</a>
+  </nav>
+</nav>
+
+<main id="main">
+
+<!-- ===== HERO ===== -->
+<section id="hero" aria-labelledby="hero-title">
+
+  <!-- Edge sparkles only -->
+  <span class="sparkle" style="top:12%;left:2%;" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#FFD422"/></svg>
+  </span>
+  <span class="sparkle" style="top:70%;right:1.5%;" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#066AFE"/></svg>
+  </span>
+  <span class="sparkle" style="bottom:10%;left:1%;" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#FFD422"/></svg>
+  </span>
+
+  <div class="hero-badge fade-up">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="#CFE9FE" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>
+    SALESFORCE DATA 360 · WORKSHOP HANDS-ON
+  </div>
+
+  <div class="hero-logo-wrap fade-up">
+    <img
+      src="assets/logo/logo.png"
+      alt="Coral Cloud Resorts logo"
+      height="80"
+      onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';"
+    >
+    <div id="logo-fallback" style="display:none; font-family:var(--font-head); font-size:36px; color:#fff; letter-spacing:.04em;">CORAL CLOUD RESORTS</div>
+  </div>
+
+  <h1 id="hero-title" class="hero-headline fade-up">
+    De datos fragmentados<br>a experiencias<br><span>unificadas</span>
+  </h1>
+  <p class="hero-sub fade-up">
+    Un viaje guiado con <strong>Salesforce Data 360</strong> para transformar la experiencia del huésped en Coral Cloud Resorts — desde datos fragmentados hasta segmentación inteligente, activación omnicanal con Marketing Cloud e IA embebida en cada paso del proceso.
+  </p>
+  <div class="hero-pills fade-up">
+    <span class="pill">Data Streams</span>
+    <span class="pill">Data Transforms</span>
+    <span class="pill">Identity Resolution</span>
+    <span class="pill">Calculated Insights</span>
+    <span class="pill">Segmentation</span>
+    <span class="pill">Activation</span>
+    <span class="pill">Agentforce</span>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">
+    <span>Empezar</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+
+<!-- ===== STORYTELLING: CORAL CLOUD RESORTS ===== -->
+<section class="section-white" aria-labelledby="story-title">
+  <p class="section-label fade-up">SOBRE CORAL CLOUD RESORTS</p>
+  <h2 id="story-title" class="section-title fade-up">El reto y la transformación</h2>
+  <p class="section-lead fade-up">Descubre cómo Coral Cloud Resorts usa Salesforce Data 360 y Agentforce para pasar de datos dispersos a experiencias de hospitalidad verdaderamente personalizadas.</p>
+
+  <div class="story-grid">
+
+    <div class="story-card fade-up">
+      <div class="story-card-icon" aria-hidden="true">🏖️</div>
+      <h3>La experiencia de hospitalidad personalizada</h3>
+      <p>Coral Cloud Resorts combina tecnología con hospitalidad de lujo. Sin embargo, toda la información de sus huéspedes (reservas, preferencias de spa, nivel de loyalty e interacciones de servicio) vive dispersa en múltiples sistemas sin comunicarse entre sí. Esto provocaba fricciones como enviar ofertas genéricas a huéspedes con quejas abiertas.</p>
+    </div>
+
+    <div class="story-card accent-teal fade-up">
+      <div class="story-card-icon" aria-hidden="true">🔗</div>
+      <h3>Unificación y Vista 360 del Huésped</h3>
+      <p>Con Data 360, ingerimos y unificamos reservas, transacciones, soporte y comportamiento web bajo un solo perfil. Mediante Resolución de Identidad y Calculated Insights (como <em>"propensión a upgrade"</em> o <em>"días desde la última estadía"</em>), pasamos de datos aislados a una vista única y confiable.</p>
+    </div>
+
+    <div class="story-card accent-violet fade-up">
+      <div class="story-card-icon" aria-hidden="true">🤖</div>
+      <h3>Servicio Proactivo 24/7</h3>
+      <p>Con datos unificados, desplegamos agentes autónomos con Agentforce. Si se detecta una reseña negativa o insatisfacción, se dispara un flujo de atención proactiva donde el agente conoce el contexto completo del huésped (historial, tier y preferencias) para resolverlo al instante.</p>
+    </div>
+
+    <div class="story-card accent-green fade-up">
+      <div class="story-card-icon" aria-hidden="true">🎯</div>
+      <h3>Segmentación y Activación GenAI</h3>
+      <p>El equipo de marketing puede lanzar campañas de alta precisión como <em>"Summer Splash"</em>: un segmento de huéspedes con alta fidelidad que NO tienen casos de servicio abiertos. Mensajes hiperpersonalizados armados en minutos con herramientas GenAI.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE INDEX ===== -->
+<section class="ex-index-section" aria-labelledby="ex-index-title">
+  <h2 id="ex-index-title" class="ex-index-title fade-up">
+    In this <em>Hands-On Workshop</em>, you will learn how to:
+  </h2>
+  <div class="ex-index-grid">
+
+    <a href="#setup" class="ex-index-card fade-up">
+      <span class="ex-num ex-setup" aria-hidden="true">0</span>
+      <div class="ex-card-text">
+        <span class="ex-card-label">Ejercicio 0</span>
+        <span class="ex-card-name">Request a Workshop Environment</span>
+      </div>
+    </a>
+
+    <a href="#ex1" class="ex-index-card fade-up">
+      <span class="ex-num" aria-hidden="true">1</span>
+      <div class="ex-card-text">
+        <span class="ex-card-label">Ejercicio 1</span>
+        <span class="ex-card-name">Unify Data with Data Streams</span>
+      </div>
+    </a>
+
+    <a href="#ex2" class="ex-index-card fade-up">
+      <span class="ex-num" aria-hidden="true">2</span>
+      <div class="ex-card-text">
+        <span class="ex-card-label">Ejercicio 2</span>
+        <span class="ex-card-name">Manipulate Data with Data Transforms</span>
+      </div>
+    </a>
+
+    <a href="#ex3" class="ex-index-card fade-up">
+      <span class="ex-num" aria-hidden="true">3</span>
+      <div class="ex-card-text">
+        <span class="ex-card-label">Ejercicio 3</span>
+        <span class="ex-card-name">Explore Identity Resolution</span>
+      </div>
+    </a>
+
+    <a href="#ex4" class="ex-index-card fade-up">
+      <span class="ex-num" aria-hidden="true">4</span>
+      <div class="ex-card-text">
+        <span class="ex-card-label">Ejercicio 4</span>
+        <span class="ex-card-name">Go Deeper with Calculated Insights</span>
+      </div>
+    </a>
+
+    <a href="#ex5" class="ex-index-card fade-up">
+      <span class="ex-num" aria-hidden="true">5</span>
+      <div class="ex-card-text">
+        <span class="ex-card-label">Ejercicio 5</span>
+        <span class="ex-card-name">Segmentation</span>
+      </div>
+    </a>
+
+    <a href="#ex6" class="ex-index-card fade-up">
+      <span class="ex-num" aria-hidden="true">6</span>
+      <div class="ex-card-text">
+        <span class="ex-card-label">Ejercicio 6</span>
+        <span class="ex-card-name">Activation to Marketing Cloud Advanced</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+
+<!-- ===== SETUP ===== -->
+<section id="setup" class="section-cloud" aria-labelledby="setup-title">
+  <p class="section-label fade-up">PREPARACIÓN DEL ENTORNO</p>
+  <h2 id="setup-title" class="section-title fade-up">Ejercicio 0: Solicitud de Entorno de Taller</h2>
+  <p class="section-lead fade-up">
+    Antes de comenzar con los ejercicios prácticos, sigue estos pasos para solicitar y configurar tu entorno de trabajo (org) dedicado para este taller.
+  </p>
+  <div class="setup-grid">
+
+    <div class="setup-card fade-up">
+      <div class="step-num">01</div>
+      <h3>Formulario de Registro</h3>
+      <p>Accede al formulario de registro en <strong>orgfarm.salesforce.com/signup</strong> para iniciar la solicitud de tu entorno práctico.</p>
+      <a class="setup-link" href="https://orgfarm.salesforce.com/signup" target="_blank" rel="noopener noreferrer" aria-label="Ir al formulario de registro (abre en nueva pestaña)">
+        Ir al formulario
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="setup-card fade-up">
+      <div class="step-num">02</div>
+      <h3>Enviar Solicitud</h3>
+      <p>Completa el formulario ingresando el <strong>Código de Evento (Event Code)</strong> proporcionado y tu correo electrónico. Haz clic en Enviar.</p>
+    </div>
+
+    <div class="setup-card fade-up">
+      <div class="step-num">03</div>
+      <h3>Inicio de Sesión</h3>
+      <p>Al enviar la solicitud, verás una ventana emergente con un botón para acceder directamente a tu org de Salesforce.</p>
+    </div>
+
+    <div class="setup-card fade-up">
+      <div class="step-num">04</div>
+      <h3>Acceso Permanente</h3>
+      <p>Tus credenciales también serán enviadas a tu correo electrónico para que puedas ingresar en cualquier momento desde <strong>login.salesforce.com</strong>.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 1 · SCREEN 1: Context & Business Value ===== -->
+<section id="ex1" class="section-white" aria-labelledby="ex1-title">
+  <p class="section-label fade-up">EJERCICIO 1</p>
+  <div class="ex-num-badge badge-blue fade-up">1</div>
+  <h2 id="ex1-title" class="section-title fade-up">Unificar Casos de Soporte con el Modelo Customer 360</h2>
+
+  <!-- Business explanation callout -->
+  <div class="ex-context-intro fade-up" role="note">
+    <strong>¿Qué vamos a hacer?</strong> — Actualmente, cuando un cliente abre un ticket de soporte en Service Cloud, sus casos viven aislados de sus interacciones en tienda física, app móvil o e-commerce. En este ejercicio vas a conectar la fuente de casos de servicio (Cases de Service Cloud) a Data 360 para asociar cada reporte de soporte directamente con la identidad única de ese cliente (<em>Individual</em>).
+  </div>
+
+  <!-- 3-block context grid -->
+  <div class="ex-context-grid">
+
+    <!-- Block 1: El Problema -->
+    <div class="ex-context-card card-problem fade-up">
+      <div class="ctx-icon" aria-hidden="true">⚠️</div>
+      <span class="ctx-card-label ctx-label-problem">El Problema de Negocio</span>
+      <h3>El Problema: Datos Aislados</h3>
+      <p>Diferentes sistemas guardan la información del cliente de formas distintas (ej. <strong>"Surname"</strong> en S3 vs <strong>"LastName"</strong> en Service Cloud). Esto impide saber si una persona que compra en la web es la misma que tiene una queja abierta en atención al cliente.</p>
+    </div>
+
+    <!-- Block 2: Lo que vas a construir -->
+    <div class="ex-context-card card-build fade-up">
+      <div class="ctx-icon" aria-hidden="true">🔧</div>
+      <span class="ctx-card-label ctx-label-build">La Solución Práctica</span>
+      <h3>Lo que vas a construir hoy</h3>
+      <p>Crearás un Data Stream desde Salesforce CRM para traer el objeto <strong>"Case"</strong>, le asignarás la categoría de <strong>"Engagement"</strong> por fecha de creación, y mapearás sus campos (<strong>Contact ID</strong> y <strong>Status</strong>) con el modelo canónico <strong>"Individual"</strong>.</p>
+    </div>
+
+    <!-- Block 3: Objetivos de aprendizaje -->
+    <div class="ex-context-card card-learn fade-up">
+      <div class="ctx-icon" aria-hidden="true">🎯</div>
+      <span class="ctx-card-label ctx-label-learn">Objetivos de Aprendizaje</span>
+      <h3>Lo que vas a dominar</h3>
+      <ul class="learn-list" aria-label="Objetivos de aprendizaje">
+        <li>
+          <span class="learn-check" aria-hidden="true">✓</span>
+          <span>Navegar e interpretar el gráfico del <strong>Customer 360 Data Model</strong> (Profile vs Engagement).</span>
+        </li>
+        <li>
+          <span class="learn-check" aria-hidden="true">✓</span>
+          <span>Ingerir datos en tiempo real mediante <strong>conectores nativos de Data Streams</strong>.</span>
+        </li>
+        <li>
+          <span class="learn-check" aria-hidden="true">✓</span>
+          <span>Vincular transacciones y casos con el objeto <strong>"Individual"</strong> para lograr la vista 360 del cliente.</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 1 · SCREEN 2: Step-by-Step (Modal Triggers) ===== -->
+<section id="ex1-guide" class="section-dark" aria-labelledby="ex1-guide-title">
+  <p class="section-label light fade-up">PASO A PASO</p>
+  <h2 id="ex1-guide-title" class="section-title fade-up" style="color:#fff;">Ejecución del Ejercicio 1</h2>
+  <p class="section-lead fade-up" style="color:rgba(255,255,255,0.82);">
+    Sigue los tres pasos prácticos para conectar los Casos de Soporte desde Service Cloud al modelo unificado. Haz clic en cada tarjeta para ver la guía detallada con imágenes.
+  </p>
+
+  <div class="guide-trigger-grid">
+
+    <!-- Trigger Card 1 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🗂️</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">1</div>
+        <h3 style="color:#fff;">Explorar el Modelo de Datos</h3>
+      </div>
+      <p class="guide-trigger-summary">Navega al Data Model en Graph View, comprende la codificación por colores y localiza el objeto <strong style="color:#fff;">Individual</strong> como núcleo del Customer 360.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex1-step1" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Trigger Card 2 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">📥</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">2</div>
+        <h3 style="color:#fff;">Ingerir Casos desde Service Cloud</h3>
+      </div>
+      <p class="guide-trigger-summary">Crea un nuevo Data Stream desde <strong style="color:#fff;">Salesforce CRM → Case</strong>, configura la categoría Engagement con Created Date y despliégalo.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex1-step2" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Trigger Card 3 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🔗</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">3</div>
+        <h3 style="color:#fff;">Mapear al Modelo Unificado</h3>
+      </div>
+      <p class="guide-trigger-summary">Vincula <strong style="color:#fff;">Contact ID → Individual</strong> y <strong style="color:#fff;">Status → Case Status</strong> en el Data Mapping, luego ejecuta Refresh Now para ingerir de inmediato.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex1-step3" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 2 · Context & Business Value ===== -->
+<section id="ex2" class="section-cloud" aria-labelledby="ex2-title">
+  <p class="section-label fade-up">EJERCICIO 2</p>
+  <div class="ex-num-badge badge-blue fade-up">2</div>
+  <h2 id="ex2-title" class="section-title fade-up">Limpieza y Transformación de Datos con Data Transforms</h2>
+
+  <!-- Business explanation callout -->
+  <div class="ex-context-intro fade-up" role="note">
+    <strong>¿Qué vamos a hacer?</strong> — Los datos que provienen de múltiples sistemas suelen llegar "sucios" o desestructurados. En este ejercicio vas a tomar los registros de huéspedes de Coral Cloud Resorts, separar sus números de teléfono (Móvil vs Casa), limpiar los caracteres no numéricos y formatearlos para almacenarlos en nuevos Data Lake Objects (DLOs) listos para usarse.
+  </div>
+
+  <!-- 3-block context grid -->
+  <div class="ex-context-grid">
+
+    <!-- Block 1: El Problema -->
+    <div class="ex-context-card card-problem fade-up">
+      <div class="ctx-icon" aria-hidden="true">📞</div>
+      <span class="ctx-card-label ctx-label-problem">El Problema de Negocio</span>
+      <h3>El Problema: Teléfonos desestructurados</h3>
+      <p>Los teléfonos de los huéspedes vienen formateados de formas inconsistentes (ej. <strong>'+1 (555) 019-2831'</strong> frente a <strong>'5550192831'</strong>) y mezclan números de casa con celulares en un mismo campo.</p>
+    </div>
+
+    <!-- Block 2: Lo que vas a construir -->
+    <div class="ex-context-card card-build fade-up">
+      <div class="ctx-icon" aria-hidden="true">🔧</div>
+      <span class="ctx-card-label ctx-label-build">La Solución Práctica</span>
+      <h3>Lo que vas a construir hoy</h3>
+      <p>Crearás dos DLOs de destino (<strong>Guest Mobile Phone Numbers</strong> y <strong>Guest Home Phone Numbers</strong>) y desplegarás un flujo de Data Transform desde un Data Kit que limpiará caracteres especiales, generará una Primary Key única y separará los teléfonos.</p>
+    </div>
+
+    <!-- Block 3: Objetivos de aprendizaje -->
+    <div class="ex-context-card card-learn fade-up">
+      <div class="ctx-icon" aria-hidden="true">🎯</div>
+      <span class="ctx-card-label ctx-label-learn">Objetivos de Aprendizaje</span>
+      <h3>Lo que vas a dominar</h3>
+      <ul class="learn-list" aria-label="Objetivos de aprendizaje del ejercicio 2">
+        <li>
+          <span class="learn-check" aria-hidden="true">✓</span>
+          <span>Crear Objetos Data Lake (<strong>DLO</strong>) a partir de paquetes empaquetados (<strong>Data Kits</strong>).</span>
+        </li>
+        <li>
+          <span class="learn-check" aria-hidden="true">✓</span>
+          <span>Construir e interpretar flujos gráficos de transformación (<strong>Data Transforms</strong>) con nodos de Split y Clean.</span>
+        </li>
+        <li>
+          <span class="learn-check" aria-hidden="true">✓</span>
+          <span>Generar llaves primarias únicas concatenando campos y ejecutar transformaciones en lote.</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 2 · SCREEN 2: Step-by-Step (Modal Triggers) ===== -->
+<section id="ex2-guide" class="section-dark" aria-labelledby="ex2-guide-title">
+  <p class="section-label light fade-up">PASO A PASO</p>
+  <h2 id="ex2-guide-title" class="section-title fade-up" style="color:#fff;">Ejecución del Ejercicio 2</h2>
+  <p class="section-lead fade-up" style="color:rgba(255,255,255,0.82);">
+    Sigue los dos pasos prácticos para crear los DLOs de destino y ejecutar el Data Transform de limpieza y separación de teléfonos.
+  </p>
+  <div class="guide-trigger-grid">
+
+    <!-- Trigger Card 1 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🗄️</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">1</div>
+        <h3 style="color:#fff;">Crear Objetos Data Lake (DLOs)</h3>
+      </div>
+      <p class="guide-trigger-summary">Genera los dos DLOs de destino (<strong style="color:#fff;">Guest Mobile</strong> y <strong style="color:#fff;">Guest Home Phone Numbers</strong>) desde el Data Kit CoralCloud2.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex2-step1" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Trigger Card 2 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">⚙️</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">2</div>
+        <h3 style="color:#fff;">Crear y Ejecutar el Data Transform</h3>
+      </div>
+      <p class="guide-trigger-summary">Despliega el flujo <strong style="color:#fff;">"Format Guest Phone Numbers"</strong> desde el Data Kit, analiza los nodos Split/Clean y ejecútalo con <strong style="color:#fff;">Run Now</strong>.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex2-step2" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 3 ===== -->
+<section id="ex3" aria-labelledby="ex3-title">
+  <p class="section-label fade-up">EJERCICIO 3</p>
+  <h2 id="ex3-title" class="section-title fade-up">Unificación de Perfiles con Identity Resolution</h2>
+
+  <div class="ex-context-intro fade-up">
+    Cuando un mismo huésped se registra en el hotel como <strong>"Sofia Rodriguez"</strong> desde la app y como <strong>"S. Rodriguez"</strong> en el sistema de reservas con correos similares, el sistema crea registros duplicados. En este ejercicio exploraremos cómo las <strong>Reglas de Coincidencia (Match Rules)</strong> y <strong>Reconciliación (Reconciliation Rules)</strong> unifican esos registros dispersos en un solo perfil consolidado (<strong>Unified Individual</strong>) y utilizaremos <strong>Data Explorer</strong> para validar el "antes y después".
+  </div>
+
+  <div class="ex-context-grid">
+
+    <div class="ex-context-card card-problem fade-up">
+      <div class="ctx-icon" aria-hidden="true">👥</div>
+      <span class="ctx-card-label ctx-label-problem">El Problema de Negocio</span>
+      <h3>El Problema: Registros Duplicados</h3>
+      <p>Una misma persona puede figurar múltiples veces en distintas bases de datos con variaciones en su nombre o correo. Esto impide reconocer su historial total y genera comunicaciones redundantes o contradictorias.</p>
+    </div>
+
+    <div class="ex-context-card card-solution fade-up">
+      <div class="ctx-icon" aria-hidden="true">🔀</div>
+      <span class="ctx-card-label ctx-label-solution">La Solución Práctica</span>
+      <h3>Lo que vas a explorar hoy</h3>
+      <p>Revisarás las reglas de coincidencia difusa (<strong>Fuzzy Match</strong>) y de reconciliación en la pestaña <strong>Identity Resolutions</strong>. Luego, consultarás la tabla <strong>"Individual"</strong> en Data Explorer para ver los registros duplicados de "Sofia Rodriguez" y verificarás cómo se consolidan en una sola entrada en <strong>"Unified Individual"</strong>.</p>
+    </div>
+
+    <div class="ex-context-card card-learn fade-up">
+      <div class="ctx-icon" aria-hidden="true">🎯</div>
+      <span class="ctx-card-label ctx-label-learn">Objetivos de Aprendizaje</span>
+      <h3>Lo que vas a dominar</h3>
+      <ul class="learning-list" aria-label="Objetivos de aprendizaje">
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Comprender la diferencia entre <strong>Match Rules</strong> (coincidencias) y <strong>Reconciliation Rules</strong> (selección del mejor dato).</span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Interpretar métricas de resolución de identidad (porcentaje y total de registros consolidados).</span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Usar <strong>Data Explorer</strong> para filtrar, personalizar columnas y comparar el objeto de origen (<em>Individual</em>) frente al perfil unificado (<em>Unified Individual</em>).</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 3 · SCREEN 2: Step-by-Step (Modal Triggers) ===== -->
+<section id="ex3-guide" class="section-dark" aria-labelledby="ex3-guide-title">
+  <p class="section-label light fade-up">PASO A PASO</p>
+  <h2 id="ex3-guide-title" class="section-title fade-up" style="color:#fff;">Ejecución del Ejercicio 3</h2>
+  <p class="section-lead fade-up" style="color:rgba(255,255,255,0.82);">
+    Sigue los dos pasos para inspeccionar las reglas de Identity Resolution y validar la unificación de perfiles en Data Explorer.
+  </p>
+  <div class="guide-trigger-grid">
+
+    <!-- Trigger Card 1 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🔗</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">1</div>
+        <h3 style="color:#fff;">Explorar la Configuración de Identity Resolution</h3>
+      </div>
+      <p class="guide-trigger-summary">Revisa las <strong style="color:#fff;">Match Rules</strong> y <strong style="color:#fff;">Reconciliation Rules</strong> del Ruleset <em style="color:rgba(255,255,255,0.85);">Unified Guests</em> y analiza sus métricas de consolidación.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex3-step1" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Trigger Card 2 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🔍</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">2</div>
+        <h3 style="color:#fff;">Consultar Individual vs Unified Individual en Data Explorer</h3>
+      </div>
+      <p class="guide-trigger-summary">Filtra por <strong style="color:#fff;">"Rodriguez"</strong> en el objeto <strong style="color:#fff;">Individual</strong> y comprueba cómo el objeto <strong style="color:#fff;">Unified Individual</strong> los consolida en un único perfil 360.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex3-step2" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 4 ===== -->
+<section id="ex4" aria-labelledby="ex4-title">
+  <p class="section-label fade-up">EJERCICIO 4</p>
+  <h2 id="ex4-title" class="section-title fade-up">Métricas Avanzadas con Calculated Insights y Enriquecimiento CRM</h2>
+
+  <div class="ex-context-intro fade-up">
+    Con los datos unificados bajo <strong>"Unified Individual"</strong>, ahora podemos calcular métricas complejas a nivel de cliente. En este ejercicio calcularás el <strong>Lifetime Value (LTV)</strong> agregando más de 100M de registros de cargos de habitación. Posteriormente, incrustarás estas métricas y la actividad unificada directamente en la vista de Contactos de Salesforce mediante <strong>Lightning App Builder</strong>.
+  </div>
+
+  <div class="ex-context-grid">
+
+    <div class="ex-context-card card-problem fade-up">
+      <div class="ctx-icon" aria-hidden="true">📊</div>
+      <span class="ctx-card-label ctx-label-problem">El Problema de Negocio</span>
+      <h3>El Problema: Métricas Fragmentadas y Manuales</h3>
+      <p>Calcular el LTV o la actividad total de un huésped requiere cruzar manualmente tablas masivas de múltiples sistemas (S3, Service Cloud, POS). Esto hace imposible que un agente o ejecutivo de ventas conozca en tiempo real el valor real del cliente.</p>
+    </div>
+
+    <div class="ex-context-card card-solution fade-up">
+      <div class="ctx-icon" aria-hidden="true">⚡</div>
+      <span class="ctx-card-label ctx-label-solution">La Solución Práctica</span>
+      <h3>Lo que vas a construir hoy</h3>
+      <p>Crearás un Calculated Insight (LTV) mediante un Join entre "Unified Individual" y "Room Charges". Luego, editarás la página del Contacto en el CRM para arrastrar componentes Lightning de Data 360 (Profile Engagements e Insights), permitiendo al usuario ver el valor acumulado e historial sin salir del CRM.</p>
+    </div>
+
+    <div class="ex-context-card card-learn fade-up">
+      <div class="ctx-icon" aria-hidden="true">🎯</div>
+      <span class="ctx-card-label ctx-label-learn">Objetivos de Aprendizaje</span>
+      <h3>Lo que vas a dominar</h3>
+      <ul class="learning-list" aria-label="Objetivos de aprendizaje">
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Crear <strong>Calculated Insights</strong> a partir de Data Kits para procesar grandes volúmenes de datos.</span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Entender los Joins con <strong>Unified Individual Link</strong> para calcular agregaciones sobre la persona unificada y no sobre duplicados.</span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Usar <strong>App Builder</strong> para incrustar componentes nativos de Data 360 (Insights y Engagement) en Salesforce CRM.</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 4 · SCREEN 2: Step-by-Step (Modal Triggers) ===== -->
+<section id="ex4-guide" class="section-dark" aria-labelledby="ex4-guide-title">
+  <p class="section-label light fade-up">PASO A PASO</p>
+  <h2 id="ex4-guide-title" class="section-title fade-up" style="color:#fff;">Ejecución del Ejercicio 4</h2>
+  <p class="section-lead fade-up" style="color:rgba(255,255,255,0.82);">
+    Sigue los dos pasos para calcular el Lifetime Value mediante Calculated Insights y visualizarlo directamente en el perfil del Contacto en Salesforce CRM.
+  </p>
+  <div class="guide-trigger-grid">
+
+    <!-- Trigger Card 1 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">📊</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">1</div>
+        <h3 style="color:#fff;">Crear un Calculated Insight (LTV)</h3>
+      </div>
+      <p class="guide-trigger-summary">Genera el insight <strong style="color:#fff;">Lifetime Value</strong> desde el Data Kit, configura el Join con <strong style="color:#fff;">Unified Individual Link</strong> y publiícalo para procesarlo sobre más de 100M de registros.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex4-step1" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Trigger Card 2 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">⚡</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">2</div>
+        <h3 style="color:#fff;">Visualizar el Perfil Unificado en Salesforce CRM</h3>
+      </div>
+      <p class="guide-trigger-summary">Edita la página del Contacto con <strong style="color:#fff;">App Builder</strong> para incrustar los componentes <strong style="color:#fff;">Profile Engagements</strong> e <strong style="color:#fff;">Insights</strong> y verificar el LTV calculado en tiempo real.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex4-step2" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 5 ===== -->
+<section id="ex5" aria-labelledby="ex5-title">
+  <p class="section-label fade-up">EJERCICIO 5</p>
+  <h2 id="ex5-title" class="section-title fade-up">Segmentación de Audiencias con Generative AI (Einstein) y Reglas Complejas</h2>
+
+  <div class="ex-context-intro fade-up">
+    Coral Cloud Resorts ha remodelado su club infantil (<strong>KIDS Camp</strong>) y necesita reconectar con familias que hayan visitado el resort con más de dos niños en el último año. En este ejercicio construirás un segmento objetivo combinando <strong>Inteligencia Artificial Generativa (Einstein)</strong> para la regla inicial y luego el <strong>Segment Builder</strong> para filtrar por actividad web reciente y excluir a clientes con reclamos de soporte abiertos.
+  </div>
+
+  <div class="ex-context-grid">
+
+    <div class="ex-context-card card-problem fade-up">
+      <div class="ctx-icon" aria-hidden="true">🎯</div>
+      <span class="ctx-card-label ctx-label-problem">El Problema de Negocio</span>
+      <h3>El Problema: Campañas Masivas Ineficientes</h3>
+      <p>Lanzar promociones a toda la base de datos desperdicia presupuesto y molesta a los clientes. Promocionar el KIDS Camp a huéspedes sin hijos o venderle un upgrade a alguien con un reclamo de soporte abierto destruye la experiencia de marca.</p>
+    </div>
+
+    <div class="ex-context-card card-solution fade-up">
+      <div class="ctx-icon" aria-hidden="true">🤖</div>
+      <span class="ctx-card-label ctx-label-solution">La Solución Práctica</span>
+      <h3>Lo que vas a construir hoy</h3>
+      <p>Generarás un segmento inicial usando prompts de lenguaje natural en <strong>Einstein</strong> ("huéspedes de los últimos 6 meses con más de 2 hijos"). Luego, en el <strong>Segment Builder</strong>, agregarás condiciones para incluir quienes visitaron la web este año y excluirás casos de soporte que <strong>NO</strong> estén cerrados.</p>
+    </div>
+
+    <div class="ex-context-card card-learn fade-up">
+      <div class="ctx-icon" aria-hidden="true">⚡</div>
+      <span class="ctx-card-label ctx-label-learn">Objetivos de Aprendizaje</span>
+      <h3>Lo que vas a dominar</h3>
+      <ul class="learning-list" aria-label="Objetivos de aprendizaje">
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Crear segmentos con <strong>Inteligencia Artificial Generativa</strong> a partir de prompts en lenguaje natural.</span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Recalcular métricas de población (<strong>Count Population</strong>) y refinar reglas de inclusión/exclusión.</span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Usar atributos relacionados (<strong>Website Engagement</strong> y <strong>Cases</strong>) para proteger la experiencia del cliente.</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 5 · SCREEN 2: Step-by-Step (Modal Triggers) ===== -->
+<section id="ex5-guide" class="section-dark" aria-labelledby="ex5-guide-title">
+  <p class="section-label light fade-up">PASO A PASO</p>
+  <h2 id="ex5-guide-title" class="section-title fade-up" style="color:#fff;">Ejecución del Ejercicio 5</h2>
+  <p class="section-lead fade-up" style="color:rgba(255,255,255,0.82);">
+    Sigue los dos pasos para construir el segmento KIDS Camp con Einstein y refinarlo en el Segment Builder añadiendo filtros de actividad web y exclusión de soporte.
+  </p>
+  <div class="guide-trigger-grid">
+
+    <!-- Trigger Card 1 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🤖</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">1</div>
+        <h3 style="color:#fff;">Crear un Segmento con Generative AI (Einstein)</h3>
+      </div>
+      <p class="guide-trigger-summary">Genera la audiencia inicial usando un prompt en lenguaje natural sobre <strong style="color:#fff;">Unified Individual</strong> y mide la población con <strong style="color:#fff;">Count Population</strong>.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex5-step1" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Trigger Card 2 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🔧</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">2</div>
+        <h3 style="color:#fff;">Refinar el Segmento en el Visual Segment Builder</h3>
+      </div>
+      <p class="guide-trigger-summary">Agrega filtros de <strong style="color:#fff;">Website Engagement</strong> en Include y excluye clientes con <strong style="color:#fff;">Cases no cerrados</strong>, luego publica el segmento final.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex5-step2" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 6 ===== -->
+<section id="ex6" aria-labelledby="ex6-title">
+  <p class="section-label fade-up">EJERCICIO 6</p>
+  <h2 id="ex6-title" class="section-title fade-up">Activación Omnicanal en Marketing Cloud Advanced con IA Generativa</h2>
+
+  <div class="ex-context-intro fade-up">
+    La activación es el proceso mediante el cual una audiencia calculada en <strong>Data 360</strong> se materializa y se envía a plataformas de ejecución para comunicarse con el cliente. En este ejercicio conectarás el segmento del <strong>KIDS Camp</strong> creado en el ejercicio anterior a <strong>Marketing Cloud Advanced</strong>, diseñando un flujo omnicanal (Email y SMS) impulsado por <strong>IA Generativa</strong>.
+  </div>
+
+  <div class="ex-context-grid">
+
+    <div class="ex-context-card card-problem fade-up">
+      <div class="ctx-icon" aria-hidden="true">📢</div>
+      <span class="ctx-card-label ctx-label-problem">El Problema de Negocio</span>
+      <h3>El Problema: Desconexión entre Datos y Ejecución</h3>
+      <p>Tener datos limpios y segmentos perfectos no sirve de nada si lleva semanas redactar contenidos, diseñar los flujos de correo y sincronizar las audiencias manualmente con las herramientas de marketing.</p>
+    </div>
+
+    <div class="ex-context-card card-solution fade-up">
+      <div class="ctx-icon" aria-hidden="true">🚀</div>
+      <span class="ctx-card-label ctx-label-solution">La Solución Práctica</span>
+      <h3>Lo que vas a construir hoy</h3>
+      <p>Navegarás a <strong>Marketing Cloud Advanced</strong>, redactarás un <strong>Campaign Brief</strong> en lenguaje natural para que la IA diseñe el mapa de campaña (3 emails y 2 SMS), y vincularás el segmento unificado de Data 360 como el disparador automático de la campaña.</p>
+    </div>
+
+    <div class="ex-context-card card-learn fade-up">
+      <div class="ctx-icon" aria-hidden="true">🎯</div>
+      <span class="ctx-card-label ctx-label-learn">Objetivos de Aprendizaje</span>
+      <h3>Lo que vas a dominar</h3>
+      <ul class="learning-list" aria-label="Objetivos de aprendizaje">
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Comprender el concepto y valor de la <strong>Activación de Audiencias</strong> desde Data 360.</span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Generar flujos y borradores de contenido omnicanal (<strong>Email + SMS</strong>) mediante <strong>IA Generativa</strong> en Marketing Cloud Advanced.</span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">✓</span>
+          <span>Conectar segmentos unificados a triggers de <strong>journeys automáticos</strong> en tiempo real.</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== EXERCISE 6 · SCREEN 2: Step-by-Step (Modal Triggers) ===== -->
+<section id="ex6-guide" class="section-dark" aria-labelledby="ex6-guide-title">
+  <p class="section-label light fade-up">PASO A PASO</p>
+  <h2 id="ex6-guide-title" class="section-title fade-up" style="color:#fff;">Ejecución del Ejercicio 6</h2>
+  <p class="section-lead fade-up" style="color:rgba(255,255,255,0.82);">
+    Sigue los dos pasos para acceder a Marketing Cloud Advanced y crear una campaña omnicanal con IA Generativa vinculada al segmento del KIDS Camp.
+  </p>
+  <div class="guide-trigger-grid">
+
+    <!-- Trigger Card 1 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🧭</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">1</div>
+        <h3 style="color:#fff;">Acceder a Marketing Cloud Advanced</h3>
+      </div>
+      <p class="guide-trigger-summary">Navega desde el <strong style="color:#fff;">App Launcher</strong> a la aplicación <strong style="color:#fff;">Marketing</strong> (no Marketing CRM Classic) y accede a la página de inicio de Marketing Cloud Advanced.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex6-step1" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Trigger Card 2 -->
+    <div class="guide-trigger-card fade-up">
+      <div class="guide-block-icon" aria-hidden="true">🤖</div>
+      <div class="guide-block-header">
+        <div class="guide-step-badge" aria-hidden="true">2</div>
+        <h3 style="color:#fff;">Crear una Campaña con IA y Activar el Segmento</h3>
+      </div>
+      <p class="guide-trigger-summary">Usa <strong style="color:#fff;">Draft with Agentforce</strong> para generar el Campaign Brief, define la secuencia <strong style="color:#fff;">"3 emails + 2 SMS"</strong> y vincula el segmento KIDS Camp de Data 360 como trigger.</p>
+      <button class="guide-open-btn" type="button" data-modal="modal-ex6-step2" aria-haspopup="dialog">
+        Ver guía paso a paso
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== CONCLUSION ===== -->
+<section id="conclusion" class="section-white" aria-labelledby="conclusion-title">
+  <p class="section-label fade-up">Conclusión</p>
+  <h2 id="conclusion-title" class="section-title fade-up">Del dato fragmentado a la experiencia accionable</h2>
+  <p class="section-lead fade-up">
+    Este workshop recorrió el ciclo completo de Salesforce Data 360: desde la ingesta hasta la activación omnicanal. El resultado es una vista única, inteligente y activable del huésped de Coral Cloud Resorts.
+  </p>
+  <div class="journey-steps">
+    <div class="journey-step fade-up">
+      <div class="step-dot"></div>
+      <div>
+        <h4>Exercise 1 — Data Streams</h4>
+        <p>Todas las fuentes de Coral Cloud Resorts (reservas, spa, loyalty, soporte) integradas en una plataforma centralizada en tiempo real.</p>
+      </div>
+    </div>
+    <div class="journey-step fade-up">
+      <div class="step-dot"></div>
+      <div>
+        <h4>Exercise 2 — Data Transforms</h4>
+        <p>Datos limpios, normalizados y estructurados — listos para análisis confiable sin intervención manual.</p>
+      </div>
+    </div>
+    <div class="journey-step fade-up">
+      <div class="step-dot"></div>
+      <div>
+        <h4>Exercise 3 — Identity Resolution</h4>
+        <p>Cada huésped de Coral Cloud Resorts tiene ahora un único perfil canónico, independientemente de cuántos canales use.</p>
+      </div>
+    </div>
+    <div class="journey-step fade-up">
+      <div class="step-dot"></div>
+      <div>
+        <h4>Exercise 4 — Calculated Insights</h4>
+        <p>LTV, recencia, categoría preferida y frecuencia de compra disponibles en tiempo real en cada perfil.</p>
+      </div>
+    </div>
+    <div class="journey-step fade-up">
+      <div class="step-dot"></div>
+      <div>
+        <h4>Exercise 5 — Segmentation</h4>
+        <p>Audiencias altamente precisas construidas sin código sobre datos reales y actualizados continuamente.</p>
+      </div>
+    </div>
+    <div class="journey-step fade-up">
+      <div class="step-dot"></div>
+      <div>
+        <h4>Exercise 6 — Activation</h4>
+        <p>El gap data-to-action cerrado: segmentos activados en Marketing Cloud para campañas hiperpersonalizadas omnicanal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== FINAL CTA ===== -->
+<section id="cta" aria-labelledby="cta-title">
+  <span class="sparkle" style="top:8%;left:1.5%;" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#FFD422"/></svg>
+  </span>
+  <span class="sparkle" style="bottom:12%;right:2%;" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#CFE9FE"/></svg>
+  </span>
+  <h2 id="cta-title" class="fade-up">¡Felicitaciones por completar el taller!</h2>
+  <p class="fade-up">Has recorrido con éxito todo el ciclo de vida de los datos: desde la ingesta con Data Streams y limpieza con Data Transforms, hasta la unificación de perfiles, métricas de LTV, segmentación con IA Generativa y activación de campañas omnicanal.</p>
+  <a class="cta-btn fade-up"
+     href="https://help.salesforce.com/s/articleView?id=sf.c360_a_data_cloud.htm&type=5"
+     target="_blank"
+     rel="noopener noreferrer"
+     aria-label="Explorar la documentación oficial de Salesforce Data 360 (abre en una nueva pestaña)">
+    Explorar la Documentación de Salesforce Data 360 →
+  </a>
+</section>
+
+<!-- ===== MODALS: EXERCISE 1 ===== -->
+
+<!-- Modal 1 -->
+<div id="modal-ex1-step1" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal1-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div class="modal-header-content">
+        <p class="modal-subtitle">Paso 1 · Ejercicio 1</p>
+        <h2 id="modal1-title" class="modal-title">Explorar el Modelo de Datos Customer 360</h2>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex1-step1" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--sf-blue);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px;">Revisión del gráfico y objetos principales</p>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">1</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Dirígete a Data 360 buscando <strong>"Data Cloud"</strong> en el App Launcher (icono de 9 puntos en la esquina superior izquierda).</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso1-app-launcher.png" alt="App Launcher mostrando Data Cloud">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">2</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Haz clic en la pestaña <strong>"Data Model"</strong>. Por defecto verás la vista de lista.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso1-d360-datamodel.png" alt="Pestaña Data Model en Data Cloud">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">3</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Cambia la vista a <strong>"Graph View"</strong> (Vista de Gráfico) usando el selector en la esquina superior derecha.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso1-graph-view-0.png" alt="Cambiar a Graph View en Data Model">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">4</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Analiza la codificación por colores del gráfico:</p>
+            <div class="modal-color-key">
+              <div class="modal-ck-item"><span class="modal-ck-dot" style="background:#066AFE;"></span><span><strong>Profile</strong> — Datos de consumidores, empresas o listas de clientes.</span></div>
+              <div class="modal-ck-item"><span class="modal-ck-dot" style="background:#3BA755;"></span><span><strong>Engagement</strong> — Datos basados en eventos/tiempo (compras, tickets, clicks).</span></div>
+              <div class="modal-ck-item"><span class="modal-ck-dot" style="background:#FE9339;"></span><span><strong>Other</strong> — Datos complementarios (productos, tiendas, vehículos).</span></div>
+            </div>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso1-graph-view-1.png" alt="Codificación por colores del Data Model Graph">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">5</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>En el buscador superior derecho, escribe <strong>"Individual"</strong> para filtrar el gráfico.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso1-graph-view-2.png" alt="Búsqueda de Individual en el gráfico">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">6</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Observa la relación entre <strong>"Individual"</strong> (datos origen de cada fuente) y <strong>"Unified Individual"</strong> (vista unificada del cliente entre todas las fuentes).</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso1-individual-graph.png" alt="Gráfico: Individual y Unified Individual">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2 -->
+<div id="modal-ex1-step2" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal2-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div class="modal-header-content">
+        <p class="modal-subtitle">Paso 2 · Ejercicio 1</p>
+        <h2 id="modal2-title" class="modal-title">Ingerir Casos de Soporte desde Service Cloud</h2>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex1-step2" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--sf-blue);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px;">Creación del Data Stream para el objeto Case</p>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">1</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Abre la sección <strong>"Data Streams"</strong> en una nueva pestaña y haz clic en el botón <strong>"New"</strong> en la parte superior derecha.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso2-new-datastream.png" alt="Abrir Data Streams y clic en New">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">2</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>En la ventana del asistente para nuevo Data Stream, selecciona <strong>"Salesforce CRM"</strong> como fuente de datos y haz clic en <strong>"Next"</strong>.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso2-new-datastream-1.png" alt="Seleccionar fuente Salesforce CRM">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">3</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>En el siguiente paso, haz clic en la pestaña <strong>"All Objects"</strong>. Busca el objeto <strong>"Case"</strong>, selecciónalo y haz clic en <strong>"Next"</strong>.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso2-select-case.png" alt="Buscar y seleccionar objeto Case">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">4</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Mantén los campos del Case seleccionados por defecto y avanza. En la pantalla de configuración de categoría:</p>
+            <ul style="margin-top:10px;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:15px;color:#333;line-height:1.6;">
+              <li>Selecciona <strong>Category: "Engagement"</strong>.</li>
+              <li>En <strong>Event Time Field</strong> selecciona <strong>"Created Date"</strong> (el momento en que se creó el ticket de soporte).</li>
+              <li>Haz clic en <strong>"Next"</strong>.</li>
+            </ul>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso2-category-engagement.png" alt="Configurar Categoría Engagement y Created Date">
+        </div>
+      </div>
+
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">5</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>En la última ventana de diálogo, deja el <strong>Data Space</strong> por defecto y haz clic en <strong>"Deploy"</strong>.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso2-deploy.png" alt="Desplegar Data Stream">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3 -->
+<div id="modal-ex1-step3" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal3-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div class="modal-header-content">
+        <p class="modal-subtitle">Paso 3 · Ejercicio 1</p>
+        <h2 id="modal3-title" class="modal-title">Mapear los Datos al Modelo Customer 360</h2>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex1-step3" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--sf-blue);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px;">Vinculación de campos con Individual y Case Status</p>
+
+      <!-- Paso 1: 2 imágenes -->
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">1</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Una vez desplegado el Data Stream, el navegador cargará la página de resumen del objeto <strong>(Case_Home)</strong>. En el panel <strong>"Data Mapping"</strong>, haz clic en el botón <strong>"Start"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej1/paso3-start-mapping.png" alt="Iniciar Data Mapping">
+            <img class="modal-img-slot" src="assets/img/ej1/paso3-start-mapping-1.png" alt="Detalle de vista inicial de Data Mapping">
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2 -->
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">2</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>En la pantalla de mapeo (con el origen a la izquierda y el destino a la derecha), haz clic en <strong>"Select Objects"</strong> en el lado del destino.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso3-select-destination.png" alt="Clic en Select Objects">
+        </div>
+      </div>
+
+      <!-- Paso 3 -->
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">3</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>En el cuadro de diálogo, busca y selecciona el objeto <strong>"Case"</strong>. Haz clic en <strong>"Done"</strong> para aplicar el mapeo preliminar.</p>
+            <span class="modal-note">💡 Einstein sugiere automáticamente los mapeos de campos — observa las sugerencias antes de confirmar.</span>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso3-select-destination-1.png" alt="Selección del objeto Case con sugerencias de Einstein">
+        </div>
+      </div>
+
+      <!-- Paso 4 -->
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">4</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p><strong>Mapear la Identidad del Cliente:</strong> En la columna izquierda (DLO), selecciona el campo <strong>"Contact ID"</strong>. En el panel derecho (Data Model entities), busca y selecciona <strong>"Individual"</strong> para establecer la relación.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso3-map-contact-individual.png" alt="Mapeo de Contact ID a Individual">
+        </div>
+      </div>
+
+      <!-- Paso 5 -->
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">5</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p><strong>Mapear el Estado del Caso:</strong> De forma similar, busca <strong>"Case Status"</strong> en las entidades del modelo. Conecta el campo <strong>"Status"</strong> del DLO izquierdo con <strong>"Case Status"</strong> en la columna derecha.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso3-map-status.png" alt="Mapeo del campo Status a Case Status">
+        </div>
+      </div>
+
+      <!-- Paso 6 -->
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">6</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>Revisa que las asignaciones coincidan con la vista previa y haz clic en <strong>"Save &amp; Close"</strong> para guardar el mapeo.</p>
+          </div>
+          <img class="modal-img-slot" src="assets/img/ej1/paso3-refresh-now.png" alt="Guardar y cerrar el mapeo">
+        </div>
+      </div>
+
+      <!-- Paso 7: 2 imágenes -->
+      <div class="modal-step">
+        <span class="modal-step-num" aria-hidden="true">7</span>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <p>De regreso en la vista de detalle del Data Stream, haz clic en el botón <strong>"Refresh Now"</strong> para ejecutar la ingesta inmediata de los datos de soporte hacia Data 360.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej1/paso3-refresh-now-1.png" alt="Clic en Refresh Now">
+            <img class="modal-img-slot" src="assets/img/ej1/paso3-refresh-now-2.png" alt="Confirmación de ingesta en ejecución">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX2 · STEP 1: Crear DLOs ===== -->
+<div id="modal-ex2-step1" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex2s1-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 2 · Paso 1</span>
+        <h2 id="modal-ex2s1-title" class="modal-title">Crear Objetos Data Lake (DLOs) de Destino</h2>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex2-step1" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Crear nuevo DLO desde el menú</h3>
+            <p>En <strong>Data Cloud Setup</strong>, navega a <strong>Data Lake Objects</strong>. Haz clic en <strong>New Data Lake Object</strong> para iniciar la creación del primer objeto de destino.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso1-new-dlo.png" alt="Botón New Data Lake Object">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar origen: "Create from Data Kit"</h3>
+            <p>En el diálogo de creación elige la opción <strong>Create from Data Kit</strong>. Esto te permitirá importar la definición del DLO directamente desde el Data Kit <em>CoralCloud2</em> que ya está instalado.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso1-create-from-datakit.png" alt="Opción Create from Data Kit seleccionada">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar "Guest Mobile Phone Numbers"</h3>
+            <p>En el listado del Data Kit busca y selecciona <strong>Guest Mobile Phone Numbers</strong>. Este DLO almacenará los números de teléfono móvil limpios y formateados de los huéspedes.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso1-select-guest-mobile.png" alt="Selección de Guest Mobile Phone Numbers en el Data Kit">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Configurar y guardar el DLO Mobile</h3>
+            <p>Revisa el nombre y la clave primaria del objeto. Confirma que el <strong>Category</strong> sea <em>Engagement</em> y haz clic en <strong>Save</strong>. Repite el flujo para crear el segundo DLO.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso1-configure-dlo-mobile.png" alt="Configuración del DLO Guest Mobile">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 5">5</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Configurar y guardar el DLO Home Phone</h3>
+            <p>Siguiendo el mismo proceso, selecciona <strong>Guest Home Phone Numbers</strong> del Data Kit, verifica la configuración y haz clic en <strong>Save</strong>. Ahora tienes los dos DLOs de destino listos para recibir los datos del Transform.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso1-configure-dlo-home.png" alt="Configurar DLO Guest Home Phone Numbers">
+            <img class="modal-img-slot" src="assets/img/ej2/paso1-configure-dlo-home-1.png" alt="Verificación y guardado de DLO Guest Home Phone Numbers">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX2 · STEP 2: Data Transform ===== -->
+<div id="modal-ex2-step2" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex2s2-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 2 · Paso 2</span>
+        <h2 id="modal-ex2s2-title" class="modal-title">Crear y Ejecutar el Data Transform</h2>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex2-step2" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Crear nuevo Data Transform</h3>
+            <p>En <strong>Data Cloud Setup</strong>, navega a <strong>Data Transforms</strong>. Haz clic en <strong>New Data Transform</strong> para iniciar el asistente de creación del flujo de transformación.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-new-datatransform.png" alt="Botón New Data Transform">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar "Create from Data Kit"</h3>
+            <p>En el diálogo de selección elige <strong>Create from Data Kit</strong>. Esto cargará los Data Transforms preconfigurados incluidos en el Data Kit <em>CoralCloud2</em>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-datatransform-from-datakit.png" alt="Opción Create from Data Kit para Data Transform">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar "Format Guest Phone Numbers"</h3>
+            <p>Del listado del Data Kit selecciona el transform <strong>Format Guest Phone Numbers</strong>. Este flujo contiene la lógica de limpieza, validación y separación de números móviles y fijos ya configurada.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-select-format-phones.png" alt="Selección del transform Format Guest Phone Numbers">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Explorar el canvas del Transform</h3>
+            <p>El canvas muestra el flujo completo: nodo de entrada (DLO fuente), nodos de <strong>Split</strong> y <strong>Clean/Format</strong> para separar móviles de fijos, y los nodos de salida hacia los DLOs de destino que creaste en el Paso 1.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-transform-canvas.png" alt="Vista del canvas del Data Transform">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 5">5</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Inspeccionar el nodo "Format Mobile"</h3>
+            <p>Haz clic en el nodo <strong>Format Mobile Phone</strong> para ver su configuración. Observa las fórmulas de limpieza que eliminan caracteres especiales y aplican el formato E.164 a los números móviles.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-format-mobile-node.png" alt="Detalle del nodo Format Mobile Phone">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 6">6</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Revisar el nodo de salida (Output)</h3>
+            <p>Abre el nodo <strong>Output</strong> y verifica que apunta al DLO de destino correcto (<em>Guest Mobile Phone Numbers</em> o <em>Guest Home Phone Numbers</em>). Confirma que el mapeo de campos sea el esperado.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-output-node.png" alt="Nodo Output con DLO de destino configurado">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 7">7</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Guardar el Data Transform</h3>
+            <p>Haz clic en <strong>Save</strong> en la barra superior del canvas para guardar todos los cambios. El transform queda en estado <em>Draft</em> hasta que se active y ejecute.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-save-transform.png" alt="Botón Save en el canvas del Data Transform">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 8">8</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Volver al listado de Transforms</h3>
+            <p>Regresa a la vista de listado haciendo clic en <strong>Back to Data Transforms</strong>. Verás el transform recién creado en la lista con su estado actualizado.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-back-to-transforms.png" alt="Vista del listado de Data Transforms">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 9">9</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ejecutar con "Run Now"</h3>
+            <p>Desde el listado o la vista de detalle, haz clic en <strong>Run Now</strong> para lanzar la ejecución inmediata. En pocos minutos los DLOs de destino se poblarán con los números formateados y listos para segmentación.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej2/paso2-run-now.png" alt="Botón Run Now para ejecutar el Data Transform">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX3 · STEP 1: Identity Resolution Config ===== -->
+<div id="modal-ex3-step1" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex3s1-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 3 · Paso 1</span>
+        <h2 id="modal-ex3s1-title" class="modal-title">Explorar la Configuración de Identity Resolution</h2>
+        <p style="margin:4px 0 0;font-size:14px;color:#5a6a7e;">Revisión de Match Rules y Reconciliation Rules</p>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex3-step1" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ir a la pestaña "Identity Resolutions"</h3>
+            <p>Dentro de <strong>Data 360</strong>, dirígete a la pestaña <strong>Identity Resolutions</strong>. Si es necesario, cambia la vista a <strong>"All Identity Resolutions"</strong> para ver todos los Rulesets disponibles.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso1-identity-resolutions-list.png" alt="Pestaña Identity Resolutions">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Abrir el Ruleset "Unified Guests"</h3>
+            <p>Haz clic en el primer Ruleset, <strong>"Unified Guests"</strong>, para abrir el detalle de su configuración y explorar las reglas que definen cómo se identifican y fusionan los perfiles duplicados.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso1-click-ruleset.png" alt="Seleccionar Ruleset Unified Guests">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Examinar Match Rules y Reconciliation Rules</h3>
+            <p>En la pestaña <strong>"Ruleset Properties"</strong>, examina los dos componentes clave:</p>
+            <ul style="margin:8px 0 0 18px;line-height:1.7;">
+              <li><strong>Match Rules:</strong> Definen los atributos para identificar duplicados (ej. Fuzzy match en Name y coincidencias normalizadas en Email).</li>
+              <li><strong>Reconciliation Rules:</strong> Determinan qué valor conservar cuando hay datos en conflicto entre fuentes (ej. Most Frequent o Source Priority).</li>
+            </ul>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso1-match-reconciliation-rules.png" alt="Detalle de Match y Reconciliation Rules">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Observar métricas del Ruleset</h3>
+            <p>Revisa la lista de reglas configuradas (Rulesets), sus atributos y los resultados del proceso: <strong>total y porcentaje de registros consolidados</strong>. Estas métricas muestran cuántos perfiles duplicados fueron identificados y fusionados.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso1-ruleset-metrics.png" alt="Métricas del Ruleset Unified Guests">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX3 · STEP 2: Data Explorer Individual vs Unified ===== -->
+<div id="modal-ex3-step2" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex3s2-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 3 · Paso 2</span>
+        <h2 id="modal-ex3s2-title" class="modal-title">Consultar Individual vs Unified Individual en Data Explorer</h2>
+        <p style="margin:4px 0 0;font-size:14px;color:#5a6a7e;">Validación del perfil "Antes y Después" de la unificación</p>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex3-step2" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ir a Data Explorer</h3>
+            <p>Ve a la pestaña <strong>"Data Explorer"</strong>. Asegúrate de mantener el <strong>Data Space por defecto</strong> para acceder a todos los objetos del modelo de datos.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso2-data-explorer-home.png" alt="Ir a Data Explorer">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar el objeto "Individual"</h3>
+            <p>En el desplegable <strong>"Object"</strong>, selecciona <strong>"Data Model Object"</strong>. En el campo de búsqueda, escribe y selecciona <strong>"Individual"</strong> para consultar los registros de origen antes de la unificación.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso2-select-individual-dmo.png" alt="Seleccionar Data Model Object - Individual">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Configurar columnas visibles</h3>
+            <p>Haz clic en <strong>"Edit Columns"</strong> y selecciona los campos: <strong>Individual Id, First Name, Last Name, Data Source</strong> y <strong>Birth Date</strong>. Haz clic en <strong>"Done"</strong> para aplicar la selección.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso2-edit-columns.png" alt="Boton Edit Columns en Data Explorer">
+            <img class="modal-img-slot" src="assets/img/ej3/paso2-edit-columns-1.png" alt="Seleccion de campos en Edit Columns">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Filtrar por Last Name "Rodriguez"</h3>
+            <p>Haz clic en el icono de filtro (esquina superior derecha) → <strong>"Add Filter"</strong> y configura:</p>
+            <ul style="margin:8px 0 0 18px;line-height:1.7;">
+              <li><strong>Filter Field:</strong> Last Name</li>
+              <li><strong>Operator:</strong> equals</li>
+              <li><strong>Value:</strong> Rodriguez</li>
+            </ul>
+            <p style="margin-top:8px;">Haz clic en <strong>"Done"</strong> y luego en <strong>"Apply"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso2-filter-rodriguez.png" alt="Filtrar por Last Name equals Rodriguez">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 5">5</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Observar múltiples registros en Individual</h3>
+            <p>Revisa los resultados: verás <strong>múltiples registros para "Sofia Rodriguez"</strong>. Cada fila representa una fuente de origen distinta que contribuye al perfil — este es el estado <em>antes</em> de la unificación.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso2-individual-multiple-results.png" alt="Múltiples registros en objeto Individual">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 6">6</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Cambiar al objeto "Unified Individual"</h3>
+            <p>Borra la selección actual en la barra superior. Mantén <strong>"Data Model Object"</strong> y selecciona la entidad <strong>"Unified Individual"</strong> para consultar el estado <em>después</em> de la unificación.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso2-select-unified-individual.png" alt="Seleccionar objeto Unified Individual">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 7">7</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Verificar el perfil unificado</h3>
+            <p>Aplica nuevamente el filtro <strong>"Last Name equals Rodriguez"</strong>. Observa cómo ahora existe un <strong>único registro consolidado</strong> que representa el perfil 360 unificado de Sofia — todas las fuentes fusionadas en una sola identidad canónica.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej3/paso2-unified-individual-single-result.png" alt="Único registro consolidado en Unified Individual">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX4 · STEP 1: Calculated Insight LTV ===== -->
+<div id="modal-ex4-step1" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex4s1-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 4 · Paso 1</span>
+        <h2 id="modal-ex4s1-title" class="modal-title">Crear un Calculated Insight (LTV) desde Unified Individual</h2>
+        <p style="margin:4px 0 0;font-size:14px;color:#5a6a7e;">Cálculo masivo de Lifetime Value y publicación de métricas</p>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex4-step1" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ir a Calculated Insights y crear nuevo</h3>
+            <p>Ve a la pestaña <strong>"Calculated Insights"</strong> y haz clic en <strong>"New"</strong> para iniciar el asistente de creación de un nuevo insight de métricas.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-new-calculated-insight.png" alt="Pestaña Calculated Insights y clic en New">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar "Create from a Data Kit"</h3>
+            <p>Selecciona <strong>"Create from a Data Kit"</strong> y haz clic en <strong>"Next"</strong> para importar la definición del Calculated Insight directamente desde el Data Kit instalado.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-create-from-datakit.png" alt="Seleccionar Create from a Data Kit">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar "Lifetime Value"</h3>
+            <p>En el paquete instalado, selecciona <strong>"Lifetime Value"</strong> y haz clic en <strong>"Next"</strong> para ingresar al <strong>Visual Insights Builder</strong> con el flujo preconfigurado.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-select-lifetime-value.png" alt="Seleccionar Lifetime Value en Data Kit">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Revisar el nodo Join</h3>
+            <p>En el lienzo visual, haz clic en <strong>"Join"</strong> junto al nodo Room Charges. Observa cómo el Join vincula <strong>Unified Individual</strong> mediante la tabla <strong>"Unified Individual Link"</strong> para sumar los cargos de todas las fuentes. Haz clic en <strong>"Apply"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-join-node.png" alt="Configuración de Join en Visual Insights Builder">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 5">5</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Revisar el nodo Aggregate y guardar</h3>
+            <p>Haz clic en el icono <strong>"Aggregate"</strong> del lienzo. Confirma que la métrica (Measure) LTV calcula la suma de los Room Charges y la dimensión es <strong>UnifiedGuest</strong>. Haz clic en <strong>"Apply"</strong> y luego en <strong>"Save and Run"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-aggregate-node.png" alt="Revisión del nodo Aggregate LTV">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-aggregate-node-1.png" alt="Detalle de configuración del nodo Aggregate">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 6">6</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Nombrar y habilitar el insight</h3>
+            <p>Asigna el nombre <strong>"Lifetime Value"</strong>, avanza con <strong>"Next"</strong>, establece el Schedule como <strong>"Not Scheduled"</strong> y haz clic en <strong>"Enable"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-enable-insight.png" alt="Habilitar el Calculated Insight">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-enable-insight-1.png" alt="Confirmación de habilitación de Lifetime Value">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 7">7</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Publicar y revisar el SQL generado</h3>
+            <p>Desde la vista de detalle, haz clic en <strong>"Publish Now"</strong>. Revisa la pestaña <strong>"Expression"</strong> para ver el SQL generado automáticamente que respalda el cálculo del LTV.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-publish-now.png" alt="Publicar Calculated Insight con Publish Now">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-publish-now-1.png" alt="Vista del SQL generado en la pestaña Expression">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 8">8</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Monitorear el estado de ejecución</h3>
+            <p>En la lista de Calculated Insights, monitorea el <strong>"Last Run Status"</strong> hasta que cambie de <em>Processing</em> a <strong>Success</strong>. Puedes consultar los resultados desde Data Explorer filtrando por Calculated Insights.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso1-run-status-success.png" alt="Estado de ejecución Success">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX4 · STEP 2: CRM Enrichment ===== -->
+<div id="modal-ex4-step2" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex4s2-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 4 · Paso 2</span>
+        <h2 id="modal-ex4s2-title" class="modal-title">Visualizar el Perfil Unificado en Salesforce CRM</h2>
+        <p style="margin:4px 0 0;font-size:14px;color:#5a6a7e;">Incrustar componentes de Data 360 en el registro de Contacto</p>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex4-step2" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Abrir la aplicación "Coral Cloud App"</h3>
+            <p>Usa el <strong>App Switcher</strong> (9 puntos) para abrir la aplicación <strong>"Coral Cloud App"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-open-coralcloud-app.png" alt="Abrir Coral Cloud App">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Buscar el contacto "Sofia Rodriguez"</h3>
+            <p>Ve a la pestaña <strong>"Contacts"</strong> y busca <strong>"Rodriguez"</strong>. Haz clic en <strong>"Sofia Rodriguez"</strong> para abrir su detalle de registro.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-search-contact-rodriguez.png" alt="Buscar contacto Rodriguez en la pestaña Contacts">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-search-contact-rodriguez-1.png" alt="Seleccionar el registro de Sofia Rodriguez">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Abrir el App Builder con "Edit Page"</h3>
+            <p>En la esquina superior derecha, haz clic en el icono de <strong>Engranaje (Gear)</strong> y selecciona <strong>"Edit Page"</strong> para entrar al Lightning App Builder.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-edit-page.png" alt="Clic en Engranaje y Edit Page">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Arrastrar "Data Cloud Profile Engagements"</h3>
+            <p>En la barra de componentes (izquierda), busca <strong>"Data Cloud"</strong>. Arrastra <strong>"Data Cloud Profile Engagements"</strong> al lienzo debajo de la tarjeta del Contacto.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-drag-profile-engagement.png" alt="Buscar componente Profile Engagements">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-drag-profile-engagement-1.png" alt="Arrastrar componente al lienzo">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 5">5</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Configurar propiedades de Profile Engagements</h3>
+            <p>En el panel derecho de propiedades, configura:</p>
+            <ul style="margin:8px 0 0 18px;line-height:1.7;">
+              <li><strong>Match On:</strong> Contact ID</li>
+              <li><strong>Data Space:</strong> default</li>
+              <li><strong>Unified Individual DMO:</strong> Unified Individual</li>
+              <li><strong>Unified Individual Link:</strong> Unified Link Individual</li>
+            </ul>
+            <p style="margin-top:8px;">Haz clic en <strong>"Select…"</strong>, pasa todos los DMOs a "Selected" y presiona <strong>"OK"</strong>. Haz clic en <strong>"Save"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-configure-engagement-properties.png" alt="Configurar campos principales de Profile Engagement">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-configure-engagement-properties-1.png" alt="Selección de DMOs de Engagement disponibles">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-configure-engagement-properties-2.png" alt="Confirmación y guardado de propiedades de Engagement">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 6">6</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Arrastrar "Data Cloud Profile Insights"</h3>
+            <p>Arrastra el componente <strong>"Data Cloud Profile Insights"</strong> al lienzo y colócalo entre la Contact Card y el componente de Engagements.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-drag-profile-insights.png" alt="Buscar componente Profile Insights">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-drag-profile-insights-1.png" alt="Ubicación del componente Profile Insights en el lienzo">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 7">7</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Configurar propiedades del Insight LTV</h3>
+            <p>En el panel derecho, configura las propiedades:</p>
+            <ul style="margin:8px 0 0 18px;line-height:1.7;">
+              <li><strong>Match On:</strong> Contact ID &nbsp;|&nbsp; <strong>Data Space:</strong> default</li>
+              <li><strong>Unified Individual DMO:</strong> Unified Individual</li>
+              <li><strong>Unified Individual Link:</strong> Unified Link Individual</li>
+              <li><strong>Calculated Insight:</strong> Lifetime Value &nbsp;|&nbsp; <strong>Measure:</strong> ltv__c</li>
+              <li>Marca el checkbox <strong>"Format as Currency"</strong></li>
+            </ul>
+            <p style="margin-top:8px;">Haz clic en <strong>"Save"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-configure-insight-properties.png" alt="Configurar propiedades del Insight LTV">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 8">8</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Salir del App Builder</h3>
+            <p>Haz clic en la flecha <strong>"Back"</strong> (esquina superior izquierda) para salir del App Builder y regresar a la vista del Contacto con los componentes ya embebidos.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-save-and-back.png" alt="Guardar y volver a la vista del Contacto">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 9">9</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ver el resultado final en el CRM</h3>
+            <p>En la vista del Contacto, ajusta el filtro de actividad a <strong>"Last 90 days"</strong> y presiona <strong>"Apply"</strong>. ¡Ahora el usuario del CRM puede ver el LTV calculado y toda la actividad unificada en tiempo real, sin salir de Salesforce!</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-contact-page-final-result.png" alt="Ajustar filtro a Last 90 days">
+            <img class="modal-img-slot" src="assets/img/ej4/paso2-contact-page-final-result-1.png" alt="Vista final enriquecida del perfil en el CRM">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX5 · STEP 1: Segmento con Einstein ===== -->
+<div id="modal-ex5-step1" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex5s1-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 5 · Paso 1</span>
+        <h2 id="modal-ex5s1-title" class="modal-title">Crear un Segmento con Generative AI (Einstein)</h2>
+        <p style="margin:4px 0 0;font-size:14px;color:#5a6a7e;">Uso de prompts en lenguaje natural para la audiencia inicial</p>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex5-step1" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ir a Segments y crear nuevo</h3>
+            <p>Dirígete a la pestaña <strong>"Segments"</strong> (puede estar dentro del menú <strong>"More"</strong>) y haz clic en <strong>"New"</strong> para iniciar el asistente de creación.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-new-segment.png" alt="Pestaña Segments y clic en New">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-new-segment-1.png" alt="Vista del cuadro de diálogo New Segment">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar "Create with Einstein"</h3>
+            <p>Selecciona <strong>"Create with Einstein"</strong>, elige <strong>"Unified Individual"</strong> en el campo <em>Segment On</em> y haz clic en <strong>"Next"</strong>. Confirma los avisos de GenAI haciendo clic en <strong>"Got It"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-create-with-einstein.png" alt="Crear segmento con Einstein sobre Unified Individual">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-create-with-einstein-1.png" alt="Confirmar inicio con Einstein">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ingresar el prompt en lenguaje natural</h3>
+            <p>Ingresa el siguiente prompt: <strong>"Guests who checked in within the past 6 months and have more than two children"</strong> y presiona la flecha de envío para que Einstein genere las reglas del segmento.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-einstein-prompt.png" alt="Ingresar prompt en Einstein">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Medir el tamaño inicial con "Count Population"</h3>
+            <p>Haz clic en <strong>"Count Population"</strong> para calcular el tamaño inicial de la audiencia generada por Einstein.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-count-population.png" alt="Clic en Count Population">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 5">5</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Recalcular la población</h3>
+            <p>Haz clic en <strong>"Recount Population"</strong> para actualizar el conteo. Verifica que el tamaño represente aproximadamente el <strong>25%</strong> de la población total.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-recount-population.png" alt="Recalcular población del segmento">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 6">6</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Pasar al constructor visual</h3>
+            <p>Haz clic en <strong>"Edit Segment Rules"</strong> para pasar al <strong>Segment Builder</strong> visual donde refinarás las reglas con filtros adicionales.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-edit-segment-rules.png" alt="Boton Edit Segment Rules">
+            <img class="modal-img-slot" src="assets/img/ej5/paso1-edit-segment-rules-1.png" alt="Transición hacia el Segment Builder">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX5 · STEP 2: Segment Builder refinement ===== -->
+<div id="modal-ex5-step2" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex5s2-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 5 · Paso 2</span>
+        <h2 id="modal-ex5s2-title" class="modal-title">Refinar el Segmento en el Visual Segment Builder</h2>
+        <p style="margin:4px 0 0;font-size:14px;color:#5a6a7e;">Filtros de actividad web y exclusión de casos de soporte abiertos</p>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex5-step2" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Explorar el lienzo del Segment Builder</h3>
+            <p>En la pestaña <strong>"Include"</strong>, revisa las reglas generadas por Einstein. Desde el panel izquierdo puedes acceder a <strong>Direct Attributes</strong>, <strong>Calculated Insights</strong> y <strong>Related Attributes</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-segment-builder-canvas.png" alt="Lienzo principal de Segment Builder">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Expandir "Website Engagement"</h3>
+            <p>En la paleta izquierda, expande <strong>"Related Attributes"</strong> → <strong>"Website Engagement"</strong> para acceder a los atributos de actividad web del huésped.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-expand-website-engagement.png" alt="Expandir Website Engagement en atributos relacionados">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Arrastrar "Engagement Date Time" a Include</h3>
+            <p>Arrastra y suelta <strong>"Engagement Date Time"</strong> sobre la pestaña <strong>"Include"</strong> del lienzo para agregar la condición de actividad web.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-drag-engagement-datetime.png" alt="Arrastrar Engagement Date Time a Include">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Configurar la regla de actividad web</h3>
+            <p>Configura la medición como: <strong>"Count At Least 1"</strong> donde <em>Engagement Date Time</em> es <strong>"This Year"</strong>. Haz clic en <strong>"Done"</strong> y vuelve a calcular la población.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-configure-engagement-rule.png" alt="Configurar regla de interacción web este año">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 5">5</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ir a la pestaña "Exclude"</h3>
+            <p>Haz clic en la pestaña <strong>"Exclude"</strong> (junto a Include) para configurar las exclusiones de la audiencia.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-click-exclude-tab.png" alt="Clic en la pestaña Exclude">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 6">6</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Arrastrar "Case Status" a Exclude</h3>
+            <p>En <strong>Related Attributes</strong>, expande <strong>"Case"</strong> y arrastra el atributo <strong>"Case Status"</strong> a la pestaña Exclude para definir la regla de exclusión.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-drag-case-status.png" alt="Arrastrar Case Status a Exclude">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 7">7</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Configurar la exclusión de casos no cerrados</h3>
+            <p>Configura la regla de exclusión:</p>
+            <ul style="margin:8px 0 0 18px;line-height:1.7;">
+              <li><strong>Measurement:</strong> Count At Least 1</li>
+              <li><strong>Operator:</strong> Is Not Equal To</li>
+              <li><strong>Value:</strong> Escribe "Closed" y selecciónalo cuando aparezca</li>
+            </ul>
+            <p style="margin-top:8px;">Esto excluirá a cualquier cliente que tenga casos de soporte abiertos o en proceso.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-configure-exclude-cases.png" alt="Configurar exclusión de casos no cerrados">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 8">8</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Recuento final y cerrar el builder</h3>
+            <p>Haz clic en <strong>"Done"</strong> y ejecuta nuevamente el recuento de la audiencia para verificar el impacto de las exclusiones. Luego haz clic en <strong>"Done"</strong> para cerrar el Segment Builder.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-final-recount.png" alt="Recuento final de la audiencia">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-final-recount-1.png" alt="Confirmación del tamaño actualizado del segmento">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 9">9</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Publicar el segmento</h3>
+            <p>Desde la página de detalle del segmento, despliega el menú superior derecho y selecciona <strong>"Publish Now"</strong>. El estado cambiará de <em>Publishing</em> a <strong>Success</strong> en pocos minutos.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej5/paso2-publish-now.png" alt="Publicar segmento con Publish Now">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX6 · STEP 1: Acceder a Marketing Cloud Advanced ===== -->
+<div id="modal-ex6-step1" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex6s1-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 6 · Paso 1</span>
+        <h2 id="modal-ex6s1-title" class="modal-title">Acceder a Marketing Cloud Advanced</h2>
+        <p style="margin:4px 0 0;font-size:14px;color:#5a6a7e;">Navegación a la aplicación de marketing de nueva generación</p>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex6-step1" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Abrir el App Launcher</h3>
+            <p>Haz clic en el icono del <strong>App Launcher</strong> (9 puntos en la esquina superior izquierda).</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso1-app-launcher.png" alt="Abrir App Launcher">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Buscar y seleccionar la aplicación "Marketing"</h3>
+            <p>En el cuadro de búsqueda escribe <strong>"Marketing"</strong> y selecciona la aplicación <strong>"Marketing"</strong>. Asegúrate de <strong>NO</strong> seleccionar <em>"Marketing CRM Classic"</em>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso1-select-marketing-app.png" alt="Buscar y seleccionar la app Marketing">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Página principal de Marketing Cloud Advanced</h3>
+            <p>Serás redirigido a la <strong>página de inicio de Marketing Cloud Advanced</strong>, donde podrás crear y gestionar campañas omnicanal impulsadas por IA.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso1-mca-homepage.png" alt="Página principal de Marketing Cloud Advanced">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL EX6 · STEP 2: Crear Campaña con IA y Activar Segmento ===== -->
+<div id="modal-ex6-step2" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ex6s2-title">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <span class="modal-step-badge">Ejercicio 6 · Paso 2</span>
+        <h2 id="modal-ex6s2-title" class="modal-title">Crear una Campaña con IA Generativa y Activar el Segmento</h2>
+        <p style="margin:4px 0 0;font-size:14px;color:#5a6a7e;">Diseño de un journey omnicanal y vinculación de la audiencia</p>
+      </div>
+      <button class="modal-close" type="button" data-close-modal="modal-ex6-step2" aria-label="Cerrar modal">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 1">1</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Clic en "Draft with Agentforce"</h3>
+            <p>Desplázate hacia la sección <strong>"Recently Activated Campaign Flows"</strong> y haz clic en <strong>"Draft with Agentforce"</strong>.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-draft-with-ai.png" alt="Clic en Draft with Agentforce">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 2">2</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ingresar prompt en Agentforce</h3>
+            <p>En el panel de Agentforce, ingresa la instrucción de la campaña:</p>
+            <blockquote style="margin:10px 0 0 0;padding:10px 14px;background:#f0f4ff;border-left:3px solid var(--sf-blue);border-radius:6px;font-style:italic;font-size:14px;color:#334;">"Create a marketing campaign to promote our new Kids Camp to prior guests with children during the off season"</blockquote>
+            <p style="margin-top:10px;">y presiona enviar.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-enter-campaign-brief.png" alt="Ingresar la instrucción de la campaña en Agentforce">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 3">3</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Revisar la Vista Previa / Preview</h3>
+            <p>Agentforce desplegará una respuesta con los detalles generales de la campaña (Campaign Name: <strong>Kids Camp Enrollment Campaign</strong>, Flow Name &amp; Type y Brand). Revisa la propuesta y haz clic en el botón <strong>"Preview"</strong> para abrir la pestaña de vista previa con el detalle de los mensajes y canales.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-review-brief.png" alt="Respuesta de Agentforce y clic en el botón Preview">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 4">4</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Revisar propuestas de contenido generadas</h3>
+            <p>Observa las propuestas de contenido redactadas automáticamente para <strong>Email</strong> y <strong>SMS</strong>. Como puedes observar, en la primera interacción solo hay <strong>3 emails</strong> y ningún SMS. En el siguiente paso vamos a pedirle a Agentforce que agregue <strong>2 SMS</strong> al final.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-review-generated-content.png" alt="Propuestas de contenido iniciales de Agentforce con 3 emails">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 5">5</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ajustar la secuencia con Agentforce</h3>
+            <p>Pídele al agente que agregue SMS a la secuencia de correos de manera que queden <strong>3 correos y luego 2 SMS</strong>. Puedes solicitarlo ingresando el prompt:</p>
+            <blockquote style="margin:10px 0 0 0;padding:10px 14px;background:#f0f4ff;border-left:3px solid var(--sf-blue);border-radius:6px;font-style:italic;font-size:14px;color:#334;">"Add the SMS steps to the campaign"</blockquote>
+            <p style="margin-top:10px;">Verifica que, luego de ejecutar la instrucción, la secuencia incluya los <strong>2 SMS adicionales</strong> como muestra la imagen y luego guarda la campaña.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-revise-flow-prompt.png" alt="Ingresar prompt para agregar SMS a la campaña">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-validate-flow.png" alt="Validación de la secuencia con 3 emails y 2 SMS">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 7">7</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Ir al registro de la Campaña</h3>
+            <p>Desde la vista del Brief, dirígete a la pestaña <strong>Related</strong> para acceder al registro de la Campaña que Agentforce creó automáticamente. Una vez en la vista de la Campaña, procederemos a vincular el segmento unificado de Data 360.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-campaign-canvas-messages.png" alt="Acceder a la Campaña creada desde la pestaña Related">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 8">8</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Seleccionar el segmento de origen</h3>
+            <p>En el registro de la campaña, haz clic en <strong>'Select Segment'</strong> para vincular la audiencia de Data 360 que recibirá esta campaña.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-click-select-segment.png" alt="Clic en Select Segment en la campaña">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 9">9</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Elegir "Select an Existing Segment"</h3>
+            <p>En la ventana emergente, selecciona <strong>"Select an Existing Segment"</strong> para buscar el segmento creado en el Ejercicio 5.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-select-existing-segment.png" alt="Elegir Select an Existing Segment">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 10 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 10">10</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Vincular el segmento generado en el ejercicio 5</h3>
+            <p>Busca en el menú desplegable el segmento de <strong>Recent Guests with More Than Two Children</strong> creado y haz clic en <strong>'Save'</strong>. ¡La campaña omnicanal queda vinculada a la audiencia unificada de Data 360!</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-select-segment.png" alt="Seleccionar el segmento Recent Guests with More Than Two Children y guardar">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 11 -->
+      <div class="modal-step">
+        <div class="modal-step-num" aria-label="Paso 11">11</div>
+        <div class="modal-step-content">
+          <div class="modal-step-text">
+            <h3 class="modal-step-title">Verificar la asociación del segmento en el flujo de la campaña</h3>
+            <p>Confirma que el segmento <strong>Recent Guests with More Than Two Children</strong> haya quedado correctamente vinculado como el disparador (Start Trigger) dentro del flujo <strong>Kids Camp Off Season Promotion Flow</strong>. Con esto, la campaña omnicanal queda completamente configurada y lista para activarse con los datos unificados de Data 360.</p>
+          </div>
+          <div class="modal-img-pair">
+            <img class="modal-img-slot" src="assets/img/ej6/paso2-final-step.png" alt="Verificación del segmento asociado en Kids Camp Off Season Promotion Flow">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+</main>
+
+<footer role="contentinfo">
+  <strong>Salesforce Data 360</strong> · Coral Cloud Resorts Hands-On Workshop · Recursos de Aprendizaje y Capacitación Práctica
+</footer>
+
+<!-- ===== INLINE JS ===== -->
+<script>
+// ── ScrollSpy: section-based progress bar + active nav link ──
+(function () {
+  // Ordered nav items: ids = all section IDs that belong to this nav slot
+  var NAV_ITEMS = [
+    { ids: ['hero'],             href: '#hero'       },
+    { ids: ['setup'],            href: '#setup'      },
+    { ids: ['ex1','ex1-guide'],  href: '#ex1'        },
+    { ids: ['ex2','ex2-guide'],  href: '#ex2'        },
+    { ids: ['ex3','ex3-guide'],  href: '#ex3'        },
+    { ids: ['ex4','ex4-guide'],  href: '#ex4'        },
+    { ids: ['ex5','ex5-guide'],  href: '#ex5'        },
+    { ids: ['ex6','ex6-guide'],  href: '#ex6'        },
+    { ids: ['conclusion'],       href: '#conclusion' },
+    { ids: ['cta'],              href: '#cta'        },
+  ];
+
+  var navLinks  = document.querySelectorAll('.nav-links a');
+  var progressBar = document.getElementById('progress-bar');
+  var LAST = NAV_ITEMS.length - 1;
+
+  function getActiveIndex() {
+    // The active item is the last one whose section top is above 55% of the viewport
+    var trigger = window.scrollY + window.innerHeight * 0.55;
+    var best = 0;
+    for (var i = 0; i < NAV_ITEMS.length; i++) {
+      var ids = NAV_ITEMS[i].ids;
+      for (var j = 0; j < ids.length; j++) {
+        var el = document.getElementById(ids[j]);
+        if (el && el.offsetTop <= trigger) { best = i; }
+      }
+    }
+    return best;
+  }
+
+  function update() {
+    var idx = getActiveIndex();
+    navLinks.forEach(function (a) {
+      var active = a.getAttribute('href') === NAV_ITEMS[idx].href;
+      a.classList.toggle('active', active);
+      a.setAttribute('aria-current', active ? 'page' : 'false');
+    });
+    var pct = LAST > 0 ? (idx / LAST) * 100 : 0;
+    progressBar.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', Math.round(pct));
+  }
+
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+  update();
+})();
+
+// ── Scroll animations via IntersectionObserver (no external deps) ──
+(function () {
+  const heroEls = document.querySelectorAll('#hero .fade-up');
+  heroEls.forEach(el => el.classList.add('is-visible'));
+
+  const obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('section:not(#hero) .fade-up, .fade-left, .fade-right').forEach(function (el, i) {
+    el.style.transitionDelay = (i % 4) * 0.08 + 's';
+    obs.observe(el);
+  });
+})();
+
+// ── Modal System ──
+(function () {
+  let lastFocused = null;
+
+  function openModal(id) {
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    lastFocused = document.activeElement;
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    // Move focus to close button
+    const closeBtn = overlay.querySelector('.modal-close');
+    if (closeBtn) requestAnimationFrame(() => closeBtn.focus());
+    // Trap focus inside modal
+    overlay.addEventListener('keydown', trapFocus);
+  }
+
+  function closeModal(id) {
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.classList.remove('is-open');
+    overlay.removeEventListener('keydown', trapFocus);
+    document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+  }
+
+  function closeAllModals() {
+    document.querySelectorAll('.modal-overlay.is-open').forEach(m => {
+      m.classList.remove('is-open');
+      m.removeEventListener('keydown', trapFocus);
+    });
+    document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+  }
+
+  function trapFocus(e) {
+    if (e.key !== 'Tab') return;
+    const modal = e.currentTarget;
+    const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+
+  // Open buttons
+  document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => openModal(btn.dataset.modal));
+  });
+
+  // Close buttons
+  document.querySelectorAll('[data-close-modal]').forEach(btn => {
+    btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+  });
+
+  // Backdrop click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeAllModals(); });
+  });
+
+  // ESC key
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
+})();
+
+// ── Magnifying glass for modal images ──
+(function () {
+  const ZOOM   = 2.6;   // magnification factor
+  const SIZE   = 160;   // lupa diameter in px
+  const HALF   = SIZE / 2;
+  const isTouchOnly = !window.matchMedia('(hover:hover)').matches;
+
+  // ── Lightbox (mobile tap-to-view) ──
+  function openLightbox(src, alt) {
+    const overlay = document.createElement('div');
+    overlay.className = 'img-lightbox-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', alt || 'Imagen ampliada');
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'img-lightbox-close';
+    closeBtn.innerHTML = '&#x2715;';
+    closeBtn.setAttribute('aria-label', 'Cerrar imagen');
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alt || '';
+
+    overlay.appendChild(closeBtn);
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    function closeLightbox() {
+      document.body.removeChild(overlay);
+      document.body.style.overflow = '';
+    }
+    closeBtn.addEventListener('click', closeLightbox);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeLightbox();
+    });
+    document.addEventListener('keydown', function onKey(e) {
+      if (e.key === 'Escape') { closeLightbox(); document.removeEventListener('keydown', onKey); }
+    });
+  }
+
+  // ── Wrap images and attach lupa or lightbox ──
+  function initZoom() {
+    document.querySelectorAll('.modal-img-slot').forEach(function (img) {
+      // Avoid double-wrapping
+      if (img.parentElement.classList.contains('zoom-container')) return;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'zoom-container';
+      img.parentNode.insertBefore(wrap, img);
+      wrap.appendChild(img);
+
+      if (isTouchOnly) {
+        // Mobile: tap opens lightbox
+        wrap.addEventListener('click', function () {
+          openLightbox(img.src, img.alt);
+        });
+        return;
+      }
+
+      // Desktop: magnifying glass
+      const lupa = document.createElement('div');
+      lupa.className = 'lupa';
+      lupa.setAttribute('aria-hidden', 'true');
+      wrap.appendChild(lupa);
+
+      wrap.addEventListener('mousemove', function (e) {
+        const rect = wrap.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const W  = rect.width;
+        const H  = rect.height;
+
+        // Clamp lupa center inside the image
+        const cx = Math.max(HALF, Math.min(W - HALF, mx));
+        const cy = Math.max(HALF, Math.min(H - HALF, my));
+
+        lupa.style.display = 'block';
+        lupa.style.left    = (cx - HALF) + 'px';
+        lupa.style.top     = (cy - HALF) + 'px';
+
+        // background mirrors the <img> natural src at ZOOM scale
+        const bgW = W * ZOOM;
+        const bgH = H * ZOOM;
+        const bgX = -(mx * ZOOM - HALF);
+        const bgY = -(my * ZOOM - HALF);
+
+        lupa.style.backgroundImage    = 'url("' + img.src + '")';
+        lupa.style.backgroundSize     = bgW + 'px ' + bgH + 'px';
+        lupa.style.backgroundPosition = bgX + 'px ' + bgY + 'px';
+      });
+
+      wrap.addEventListener('mouseleave', function () {
+        lupa.style.display = 'none';
+      });
+    });
+  }
+
+  // Run on DOMContentLoaded and re-run when a modal opens (images may be lazy)
+  document.addEventListener('DOMContentLoaded', initZoom);
+  document.querySelectorAll('[data-modal]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      // Small delay so the modal is visible before measuring image rects
+      setTimeout(initZoom, 80);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
