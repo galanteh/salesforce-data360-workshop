@@ -6,7 +6,7 @@
 
 Una guía interactiva paso a paso diseñada para facilitar el aprendizaje y la ejecución de talleres sobre **Salesforce Data 360**. Este proyecto incluye instrucciones detalladas, flujos visuales y guías interactivas para la configuración e implementación de casos de uso prácticos.
 
-🌐 **Demo en Vivo / Sitio Publicado:** https://workshop-data360.netlify.app/
+🌐 **Demo en Vivo / Sitio Publicado:** https://salesforce-data360-workshop-a956d38f5270.herokuapp.com/
 
 ---
 
