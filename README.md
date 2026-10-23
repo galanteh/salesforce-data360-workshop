@@ -10,10 +10,7 @@
 
 ### Acceso al Taller
 
-| Entorno | URL |
-| :--- | :--- |
-| 🚀 **Producción (Heroku)** | https://salesforce-data360-workshop-a956d38f5270.herokuapp.com/ |
-| 🔁 **Mirror (Netlify)** | https://workshop-data360.netlify.app/ |
+🚀 **Sitio en Vivo:** https://salesforce-data360-workshop-a956d38f5270.herokuapp.com/
 
 ---
 
